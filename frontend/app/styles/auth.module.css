@@ -1,0 +1,123 @@
+main .main_container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+form.login, form.register {
+    width: 400px;
+    background-color: var(--cyan);
+    /* border: 2px solid var(--orange); */
+    box-shadow: var(--cyan) 0px 7px 29px 0px;
+    border-radius: 15px;
+    padding: 50px 20px;
+}
+
+form .header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 35px;
+}
+
+form .header h1 {
+    color: var(--orange);
+    font-size: 55px;
+    font-family: "Lavishly Yours", cursive;
+    text-transform: capitalize;
+}
+
+form .header h3 {
+    color: var(--white);
+    align-self: end;
+    font-size: 13px;
+    position: relative;
+    left: -42px;
+    font-style: italic;
+    text-transform: capitalize;
+}
+
+form .body {
+    padding: 7px 5px;
+}
+
+form .body .container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+form .body input, .body select {
+    width: 100%;
+    height: 30px;
+    padding: 0 5px;
+    background-color: transparent;
+    border: 2px solid white;
+    border-radius: 10px;
+    color:white;
+}
+
+.body textarea {
+    width: 100%;
+    /* height: 30px; */
+    padding: 0 5px;
+    background-color: var(--cyan);
+    border: 2px solid white;
+    border-radius: 10px;
+    color: white;
+}
+
+.body input::placeholder{
+    color:white;
+    font-size: 10px;
+    text-transform: capitalize;
+}
+
+form .body .submit {
+    margin: 0 auto;
+    margin-top: 10px;
+}
+
+form .footer{
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+}
+
+.button1 {
+  padding: 5px 15px;
+  font-size: 1rem;
+  background: transparent;
+  outline: none;
+  border: 3px solid white;
+  border-radius: 10px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: white;
+  transition: .7s ease-in-out;
+}
+
+.button1:hover{
+  background-color: var(--orange);
+  border-color: var(--orange);
+}
+
+.button2 {
+  padding: 5px 15px;
+  font-size: 1rem;
+  background: var(--orange);
+  outline: none;
+  border: 3px solid var(--orange);
+  border-radius: 10px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: var(--white);
+}
+
+.error_section p {
+    color: var(--orange);
+    text-align: center;
+    display: block;
+}

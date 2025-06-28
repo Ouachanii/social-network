@@ -1,0 +1,7 @@
+-- +migrate Up
+CREATE TABLE chats (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    is_group BOOLEAN NOT NULL DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);

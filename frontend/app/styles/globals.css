@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Play:wght@400;700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lavishly+Yours&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --cyan: #3b8fb9;
+  --white: #fdfefe;
+  --orange: #dd3a2c;
+}
+
+body {
+  background-color: var(--white);
+  font-family: "Roboto", sans-serif;
+  min-height: 100vh;
+}
+
+main {
+  width: 90%;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+a {
+  text-decoration: none;
+}
+
+button, a {
+  cursor: pointer;
+}
+
+input {
+  outline: none;
+}
+
+.centred_margin {
+  margin: 0 auto;
+}
