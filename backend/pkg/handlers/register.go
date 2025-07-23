@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"social-network/internal/models"
-	"social-network/internal/tools"
+	"social-network/pkg/models"
+	"social-network/pkg/tools"
 	"strings"
 )
 

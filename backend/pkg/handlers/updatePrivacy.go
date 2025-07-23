@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"net/http"
-	"social-network/internal/models"
-	"social-network/internal/tools"
+
+	"social-network/pkg/models"
+	"social-network/pkg/tools"
 )
 
 type UpdatePrivacyResponse struct {
@@ -24,7 +25,7 @@ func UpdatePrivacy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var apiResponse = UpdatePrivacyResponse{
+	apiResponse := UpdatePrivacyResponse{
 		Message: "update the privacy successfully",
 	}
 

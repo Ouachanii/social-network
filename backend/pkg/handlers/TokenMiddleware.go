@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"social-network/internal/tools"
+	"social-network/pkg/tools"
 )
 
 type ErrorMiddlewareResponse struct {

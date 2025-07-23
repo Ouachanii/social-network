@@ -16,7 +16,7 @@ func CreateAllTables() *sql.DB {
 	}
 
 	migrations := &migrate.FileMigrationSource{
-		Dir: "internal/db/migrations/sqlite",
+		Dir: "pkg/db/migrations/sqlite",
 	}
 
 	n, err := migrate.Exec(db, "sqlite3", migrations, migrate.Up)

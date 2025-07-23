@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"social-network/internal/tools"
 	"time"
+
+	"social-network/pkg/tools"
 )
 
 type LoginRequest struct {
@@ -14,7 +15,9 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Message string `json:"message"`
+	Message string      `json:"message"`
+	User    interface{} `json:"user"`
+	Token   string      `json:"token"`
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -56,8 +59,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(200 * 365 * 24 * time.Hour), // Long-lived token
 	})
 
-	var apiResponse = LoginResponse{
+	apiResponse := LoginResponse{
 		Message: "connected successfully",
+		User:    user,
+		Token:   JWTToken,
 	}
 
 	tools.JSONResponse(w, http.StatusOK, apiResponse)

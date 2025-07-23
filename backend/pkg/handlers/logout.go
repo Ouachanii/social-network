@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"net/http"
-	"social-network/internal/tools"
+	"social-network/pkg/tools"
 )
 
 type LogoutResponse struct {

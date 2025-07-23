@@ -3,9 +3,10 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"social-network/internal/models"
-	"social-network/internal/tools"
 	"strconv"
+
+	"social-network/pkg/models"
+	"social-network/pkg/tools"
 )
 
 type FollowUserResponse struct {
@@ -37,7 +38,7 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var apiResponse = FollowUserResponse{
+	apiResponse := FollowUserResponse{
 		Message: "you're following this user",
 	}
 
@@ -55,10 +56,10 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var notification = models.Notification{
-		RelatedId: int(relatedId),
-		Type:      followType,
-		SenderId:  followerID,
+	notification := models.Notification{
+		RelatedId:  int(relatedId),
+		Type:       followType,
+		SenderId:   followerID,
 		ReceiverId: followingID,
 	}
 

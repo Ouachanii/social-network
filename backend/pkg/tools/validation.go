@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
-	"social-network/internal/models"
+	"social-network/pkg/models"
 
 	"strings"
 	"time"

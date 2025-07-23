@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"social-network/internal/models"
+	"social-network/pkg/models"
 	"strconv"
 	"strings"
 )

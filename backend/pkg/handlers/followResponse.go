@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"social-network/internal/models"
-	"social-network/internal/tools"
+	"social-network/pkg/models"
+	"social-network/pkg/tools"
 )
 
 type followResponseResponse struct {
