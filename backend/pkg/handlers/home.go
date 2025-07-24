@@ -4,10 +4,9 @@ import (
 	"net/http"
 )
 
-// HomeHandler redirects to /home and displays app content
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/home" {
-		http.Redirect(w, r, "/home", http.StatusSeeOther)
+	if r.URL.Path != "/" {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

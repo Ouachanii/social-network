@@ -27,7 +27,7 @@ func main() {
 	http.HandleFunc("/api/follow/{userID}", handlers.HandleCORS(handlers.TokenMiddleware(handlers.FollowUser))) // 1-need send notification func with ws | 2- need handling this cases: *when user follow himself  *when user follow a user already follower (follow the same follower 2 times)
 	http.HandleFunc("/api/followResponse", handlers.HandleCORS(handlers.TokenMiddleware(handlers.FollowResponse)))
 
-	http.HandleFunc("/api/posts", handlers.HandleCORS(handlers.TokenMiddleware(handlers.CreatePostHandler)))
+	http.HandleFunc("/api/posts", handlers.HandleCORS(handlers.TokenMiddleware(handlers.PostsHandler)))
 	http.HandleFunc("/api/upload/avatar", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UploadAvatar)))
 	http.HandleFunc("/api/upload/post-image", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UploadPostImage)))
 
@@ -40,9 +40,9 @@ func main() {
 
 	http.HandleFunc("/api/notifications", handlers.HandleCORS(handlers.TokenMiddleware(handlers.NotificationsHandler)))
 
-	http.HandleFunc("/home", handlers.HomeHandler)
+	http.HandleFunc("/", handlers.HomeHandler)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { fmt.Println("this is home path") })
+	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { fmt.Println("this is home path") })
 
 	http.ListenAndServe(":8080", nil)
 }

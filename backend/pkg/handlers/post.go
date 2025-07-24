@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"social-network/pkg/models"
 	"strconv"
 	"strings"
+
+	"social-network/pkg/models"
 )
 
 // CreatePostHandler handles creating a new post
@@ -84,5 +85,21 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(posts)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"posts": posts,
+	})
+}
+
+// PostsHandler handles both GET and POST requests for posts
+func PostsHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		GetPostsHandler(w, r)
+	case http.MethodPost:
+		CreatePostHandler(w, r)
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusOK)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
 }

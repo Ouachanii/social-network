@@ -9,7 +9,7 @@ export default function RootLayout({ children }) {
     // Check if user is logged in (example: check localStorage/session)
     const isLoggedIn = typeof window !== "undefined" && localStorage.getItem("isLoggedIn") === "true";
     if (isLoggedIn && window.location.pathname === "/login") {
-      router.replace("/home");
+      router.replace("/");
     }
   }, [router]);
   return (

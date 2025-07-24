@@ -1,9 +1,10 @@
 main .main_container {
     display: flex;
     justify-content: center;
+    justify-items: center;
     align-items: center;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 80vh;
 }
 
 form.login, form.register {
@@ -12,9 +13,17 @@ form.login, form.register {
     /* border: 2px solid var(--orange); */
     box-shadow: var(--cyan) 0px 7px 29px 0px;
     border-radius: 15px;
-    padding: 50px 20px;
+    padding: 40px 20px;
 }
-
+.title {
+    display: block;
+    background-color: var(--cyan);
+    text-align: center;
+    padding-bottom: 50px;
+    padding-top: 30px;
+    color: white;
+    width: 100%;
+}
 form .header {
     display: flex;
     align-items: center;

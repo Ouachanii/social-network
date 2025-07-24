@@ -39,8 +39,13 @@ export default function Login() {
         return;
       } else {
         const result = await response.json();
-        router.push("/");
-        console.log(result);
+        if (result.token) {
+          localStorage.setItem('token', result.token);
+          localStorage.setItem('isLoggedIn', 'true');
+          router.push("/");
+        } else {
+          throw new Error("No token received");
+        }
       }
     } catch (error) {
       console.error("Error:", error);
@@ -49,6 +54,7 @@ export default function Login() {
 
   return (
     <main>
+      <h1 className={styles.title}>Welcome to our Social Network App!</h1>
       <div className={styles.main_container}>
         <form className={styles.login} id="login_form" onSubmit={handleSubmit}>
           <div className={styles.header}>

@@ -1,11 +1,15 @@
 package handlers
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+
+	"social-network/pkg/models"
 
 	"github.com/gorilla/websocket"
 )
@@ -107,9 +111,21 @@ func GroupsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Method == http.MethodGet {
-		// TODO: List groups logic
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("List of groups (stub)"))
+		userID, ok := r.Context().Value("userID").(int)
+		if !ok || userID == 0 {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		offsetStr := r.URL.Query().Get("offset")
+		offset, _ := strconv.Atoi(offsetStr)
+		groups, err := models.Db.GetGroups(userID, offset)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{"groups": groups})
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
@@ -138,7 +154,26 @@ func GroupEventsHandler(w http.ResponseWriter, r *http.Request) {
 
 // NotificationsHandler handles notifications
 func NotificationsHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: Fetch notifications for user
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Notifications (stub)"))
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	userID, ok := r.Context().Value("userID").(int)
+	if !ok || userID == 0 {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	notifications, err := models.Db.GetNotifications(userID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"notifications": notifications,
+	})
 }

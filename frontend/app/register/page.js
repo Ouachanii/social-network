@@ -66,6 +66,7 @@ export default function Register() {
 
   return (
     <main>
+      <h1 className={styles.title}>Welcome to our Social Network App!</h1>
       <div className={styles.main_container}>
         <form
           className={styles.register}
