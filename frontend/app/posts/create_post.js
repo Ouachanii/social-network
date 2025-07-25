@@ -108,8 +108,8 @@ export function CreatePost({ onPostCreated }) {
                   className={styles.select}
                 >
                   <option value="public">🌎 Public</option>
-                  <option value="almost_private">👥 Friends</option>
-                  <option value="private">🔒 Only Me</option>
+                  <option value="almost_private">👥 Almost Private</option>
+                  <option value="private">🔒 Private</option>
                 </select>
               </div>
             </div>
