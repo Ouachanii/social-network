@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogoutButton } from "./components/logout_button";
 import { CreatePost } from "./components/create_post";
+import Link from "next/link";
+import styles from "./styles/home.module.css";
 
 
 export default function HomePage() {
@@ -83,74 +85,101 @@ export default function HomePage() {
   };
 
   return (
-    <div className="home-page">
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
+    <div>
+      <header className={styles.header}>
         <h1>Social Network</h1>
         <LogoutButton />
       </header>
       
-      <main style={{ padding: '1rem' }}>
-        <CreatePost onPostCreated={handlePostCreated} />
-        
-        {isLoading ? (
-          <div>Loading...</div>
-        ) : (
-          <>
-            <section>
-              <h3>Posts</h3>
-              {posts && posts.length > 0 ? (
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                  {posts.map(post => (
-                    <li key={post.id || Math.random()} style={{ 
-                      marginBottom: '1rem',
-                      padding: '1rem',
-                      border: '1px solid #ddd',
-                      borderRadius: '8px'
-                    }}>
-                      <div style={{ marginBottom: '0.5rem' }}>
+      <div className={styles.container}>
+        {/* Left Sidebar */}
+        <aside className={styles.leftSidebar}>
+          <Link href="/profile" className={styles.sidebarItem}>
+            <div className={styles.sidebarIcon}>👤</div>
+            <span>Profile</span>
+          </Link>
+          <Link href="/friends" className={styles.sidebarItem}>
+            <div className={styles.sidebarIcon}>👥</div>
+            <span>Friends</span>
+          </Link>
+          <Link href="/groups" className={styles.sidebarItem}>
+            <div className={styles.sidebarIcon}>👥</div>
+            <span>Groups</span>
+          </Link>
+          <Link href="/notifications" className={styles.sidebarItem}>
+            <div className={styles.sidebarIcon}>🔔</div>
+            <span>Notifications</span>
+          </Link>
+        </aside>
+
+        {/* Main Content */}
+        <main className={styles.mainContent}>
+          <CreatePost onPostCreated={handlePostCreated} />
+          
+          {isLoading ? (
+            <div>Loading...</div>
+          ) : (
+            <>
+              {/* Posts Feed */}
+              <section>
+                {posts && posts.length > 0 ? (
+                  posts.map(post => (
+                    <article key={post.id || Math.random()} className={styles.post}>
+                      <div className={styles.postHeader}>
+                        <div className={styles.postUserAvatar}></div>
+                        <div className={styles.postUserInfo}>
+                          <p className={styles.postUsername}>{post.username || 'Anonymous'}</p>
+                          <p className={styles.postTimestamp}>Just now</p>
+                        </div>
+                      </div>
+
+                      <div className={styles.postContent}>
+                        <p>{post.content}</p>
                         {post.image && (
-                          <img 
-                            src={`http://localhost:8080/${post.image}`} 
+                          <img
+                            src={`http://localhost:8080/${post.image}`}
                             alt="Post image"
-                            style={{ maxWidth: '100%', marginBottom: '0.5rem' }}
+                            className={styles.postImage}
                           />
                         )}
-                        <p>{post.content}</p>
                       </div>
-                      <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                        Posted by: {post.username || 'Anonymous'}
+
+                      <div className={styles.postActions}>
+                        <button className={styles.actionButton}>
+                          👍 Like
+                        </button>
+                        <button className={styles.actionButton}>
+                          💬 Comment
+                        </button>
+                        <button className={styles.actionButton}>
+                          ↗️ Share
+                        </button>
                       </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No posts available</p>
-              )}
-            </section>
-            
-            <section>
-              <h3>Groups</h3>
-              {groups && groups.length > 0 ? (
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                  {groups.map(group => (
-                    <li key={group.id || Math.random()} style={{
-                      marginBottom: '1rem',
-                      padding: '1rem',
-                      border: '1px solid #ddd',
-                      borderRadius: '8px'
-                    }}>
-                      <h4>{group.title}</h4>
-                      <p>{group.description}</p>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No groups available</p>
-              )}
-            </section>
-          </>
-        )}
-      </main>
+                    </article>
+                  ))
+                ) : (
+                  <p>No posts available</p>
+                )}
+              </section>
+            </>
+          )}
+        </main>
+
+        {/* Right Sidebar */}
+        <aside className={styles.rightSidebar}>
+          <h3 className={styles.sectionTitle}>Your Groups</h3>
+          {groups && groups.length > 0 ? (
+            groups.map(group => (
+              <div key={group.id || Math.random()} className={styles.group}>
+                <h4 className={styles.groupTitle}>{group.title}</h4>
+                <p className={styles.groupDescription}>{group.description}</p>
+              </div>
+            ))
+          ) : (
+            <p>No groups available</p>
+          )}
+        </aside>
+      </div>
     </div>
   );
 }

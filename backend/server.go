@@ -15,9 +15,7 @@ func init() {
 }
 
 func main() {
-	fmt.Println("00000")
-	port := ":8080"
-	fmt.Println("http://localhost" + port)
+	fmt.Println("server started at: http://localhost:8080")
 
 	http.HandleFunc("/api/register", handlers.HandleCORS(handlers.Register))
 	http.HandleFunc("/api/login", handlers.HandleCORS(handlers.Login))
@@ -41,8 +39,6 @@ func main() {
 	http.HandleFunc("/api/notifications", handlers.HandleCORS(handlers.TokenMiddleware(handlers.NotificationsHandler)))
 
 	http.HandleFunc("/", handlers.HomeHandler)
-
-	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { fmt.Println("this is home path") })
 
 	http.ListenAndServe(":8080", nil)
 }

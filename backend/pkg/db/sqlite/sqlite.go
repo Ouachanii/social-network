@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -19,10 +18,9 @@ func CreateAllTables() *sql.DB {
 		Dir: "pkg/db/migrations/sqlite",
 	}
 
-	n, err := migrate.Exec(db, "sqlite3", migrations, migrate.Up)
+	_, err = migrate.Exec(db, "sqlite3", migrations, migrate.Up)
 	if err != nil {
 		log.Fatal("failed to execute sqlfile ", err)
 	}
-	fmt.Println(n)
 	return db
 }
