@@ -16,14 +16,14 @@
 body {
   background-color: var(--white);
   font-family: "Roboto", sans-serif;
-  min-height: 100vh;
-  min-width: 100vw;
+  height: 100%;
+  width: 100%;
 }
 
 main {
   width: 100%;
   margin: 0 auto;
-  min-height: 100vh;
+  height: 90vh;
 }
 
 a {

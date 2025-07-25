@@ -1,0 +1,126 @@
+.post {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.postHeader {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+}
+
+.authorAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e4e6eb;
+  margin-right: 12px;
+}
+
+.authorInfo {
+  flex: 1;
+}
+
+.authorName {
+  font-weight: 600;
+  color: #050505;
+  margin: 0;
+  font-size: 15px;
+}
+
+.postMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.timestamp {
+  color: #65676B;
+  font-size: 13px;
+}
+
+.privacyIcon {
+  color: #65676B;
+  font-size: 12px;
+}
+
+.postContent {
+  padding: 4px 16px 16px;
+}
+
+.postText {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.3333;
+  color: #050505;
+}
+
+.postImage {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+  margin-top: 12px;
+}
+
+.postActions {
+  display: flex;
+  padding: 4px 12px;
+  border-top: 1px solid #e4e6eb;
+}
+
+.actionButton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border: none;
+  background: none;
+  color: #65676B;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.actionButton:hover {
+  background: #f0f2f5;
+}
+
+.actionIcon {
+  font-size: 18px;
+}
+
+.loadingSpinner {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.errorMessage {
+  text-align: center;
+  padding: 20px;
+  color: #d32f2f;
+  background: #ffebee;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: 40px 20px;
+  color: #65676B;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

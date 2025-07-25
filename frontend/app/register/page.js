@@ -2,8 +2,8 @@
 import { useState } from "react";
 import styles from "@/app/styles/auth.module.css";
 import { useRouter } from "next/navigation";
-import { LinkButton } from "../components/link_button";
-import { ErrorFormMessage } from "../components/error_form";
+import { LinkButton } from "../link_button";
+import { ErrorFormMessage } from "../posts/error_form";
 
 export default function Register() {
 

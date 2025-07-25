@@ -5,6 +5,7 @@ main .main_container {
     align-items: center;
     flex-direction: column;
     min-height: 80vh;
+    width: 100%;
 }
 
 form.login, form.register {
@@ -22,7 +23,7 @@ form.login, form.register {
     padding-bottom: 50px;
     padding-top: 30px;
     color: white;
-    width: 100%;
+    width: auto;
 }
 form .header {
     display: flex;

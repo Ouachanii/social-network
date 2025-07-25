@@ -1,8 +1,8 @@
 "use client"; // important! because we will use interactivity
 import styles from "@/app/styles/auth.module.css";
-import { LinkButton } from "../components/link_button";
+import { LinkButton } from "../link_button";
 import { useState } from "react";
-import { ErrorFormMessage } from "../components/error_form";
+import { ErrorFormMessage } from "../posts/error_form";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
