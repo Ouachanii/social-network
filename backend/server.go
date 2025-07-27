@@ -29,7 +29,11 @@ func main() {
 	http.HandleFunc("/api/upload/avatar", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UploadAvatar)))
 	http.HandleFunc("/api/upload/post-image", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UploadPostImage)))
 
-	http.HandleFunc("/ws", handlers.HandleWebSocket)
+	hub := handlers.NewHub()
+
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		handlers.HandleWebSocket(hub, w, r)
+	})
 
 	http.HandleFunc("/api/groups", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupsHandler)))
 	http.HandleFunc("/api/groups/invite", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupInviteHandler)))
@@ -39,6 +43,7 @@ func main() {
 	http.HandleFunc("/api/notifications", handlers.HandleCORS(handlers.TokenMiddleware(handlers.NotificationsHandler)))
 
 	http.HandleFunc("/", handlers.HomeHandler)
+	// http.HandleFunc("/", handlers.HomeHandler)
 
 	http.ListenAndServe(":8080", nil)
 }
