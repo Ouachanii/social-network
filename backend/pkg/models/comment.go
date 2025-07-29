@@ -47,7 +47,7 @@ func (db *DB) GetComment(commentID int) (Comment, error) {
 
 	c.Username = strings.Join([]string{firstName, lastName}, " ")
 	c.Content = html.UnescapeString(c.Content)
-	c.CreatedAt = timeCreated.Format("Jan 2, 2006 at 3:04")
+	c.CreatedAt = timeCreated.Format("Jan 2, 2006 at 15:04")
 
 	return c, nil
 }
@@ -77,7 +77,7 @@ func (db *DB) GetCommentsByPost(postID, offset int) ([]Comment, error) {
 
 		comment.Username = strings.Join([]string{firstName, lastName}, " ")
 		comment.Content = html.UnescapeString(comment.Content)
-		comment.CreatedAt = timeCreated.Format("Jan 2, 2006 at 3:04")
+		comment.CreatedAt = timeCreated.Format("Jan 2, 2006 at 15:04")
 		comments = append(comments, comment)
 	}
 
