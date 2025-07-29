@@ -27,6 +27,13 @@ type GroupEvent struct {
 	NotGoingCount int    `json:"not_going_count"`
 }
 
+type GroupRequest struct {
+	ID        int    `json:"id"`
+	UserID    int    `json:"user_id"`
+	Username  string `json:"username"`
+	CreatedAt string `json:"created_at"`
+}
+
 func (db *DB) GetGroup(groupID int) (Group, error) {
 	var g Group
 	var timeCreated time.Time
@@ -280,9 +287,4 @@ func (db *DB) GetPendingRequests(groupID int) ([]GroupRequest, error) {
 	return requests, nil
 }
 
-type GroupRequest struct {
-	ID        int    `json:"id"`
-	UserID    int    `json:"user_id"`
-	Username  string `json:"username"`
-	CreatedAt string `json:"created_at"`
-}
+

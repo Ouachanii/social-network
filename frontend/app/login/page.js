@@ -1,4 +1,4 @@
-"use client"; // important! because we will use interactivity
+"use client";
 import styles from "@/app/styles/auth.module.css";
 import { LinkButton } from "../link_button";
 import { useState } from "react";
@@ -92,7 +92,7 @@ export default function Login() {
               </div>
               <div className={styles.submit}>
                 <button className={styles.button1} type="submit">
-                  Submit
+                  Login
                 </button>
               </div>
             </div>
@@ -109,38 +109,3 @@ export default function Login() {
     </main>
   );
 }
-
-// export default function page() {
-//     return (
-//         <main>
-//             <div className={styles.main_container}>
-//                 <form className={styles.login} id="login_form" method="post">
-//                     <div className={styles.header}>
-//                         <h1>Login</h1>
-//                         <h3>please enter your informations</h3>
-//                     </div>
-
-//                     <div className={styles.body}>
-//                         <div className={styles.container}>
-//                             <div className={styles.login}>
-//                                 <input id="login" type="text" name="login" placeholder="user-name/email." required></input>
-//                             </div>
-//                             <div className={styles.password}>
-//                                 <input id="password" type="password" name="password" placeholder="password." required></input>
-//                             </div>
-//                             <div className={styles.submit}>
-//                                 <button className={styles.button1} id="submit_form">submit</button>
-//                             </div>
-//                         </div>
-//                     </div>
-
-//                     <div className={styles.footer}>
-//                         <div className={styles.container}>
-//                             <button className={styles.button2}>Create new account</button>
-//                         </div>
-//                     </div>
-//                 </form>
-//             </div>
-//         </main>
-//     )
-// }

@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import styles from "@/app/styles/auth.module.css";
 
 export function LogoutButton() {
   const router = useRouter();
@@ -28,7 +29,10 @@ export function LogoutButton() {
   };
 
   return (
-    <button onClick={handleLogout}>
+    <button
+    className={styles.logout_button}
+    onClick={handleLogout}
+    >
       Logout
     </button>
   );

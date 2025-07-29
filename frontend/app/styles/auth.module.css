@@ -99,35 +99,51 @@ form .footer{
 .button1 {
   padding: 5px 15px;
   font-size: 1rem;
-  background: transparent;
+  background: rgb(41, 41, 255);
   outline: none;
-  border: 3px solid white;
   border-radius: 10px;
   font-weight: 600;
   text-transform: capitalize;
   color: white;
-  transition: .7s ease-in-out;
+  transition: .4s ease-in-out;
 }
 
 .button1:hover{
-  background-color: var(--orange);
-  border-color: var(--orange);
-}
+  background-color: rgb(8, 8, 133);}
 
 .button2 {
   padding: 5px 15px;
   font-size: 1rem;
-  background: var(--orange);
+  background: rgb(41, 41, 255);
   outline: none;
-  border: 3px solid var(--orange);
   border-radius: 10px;
   font-weight: 600;
   text-transform: capitalize;
   color: var(--white);
+transition: .4s ease-in-out;
+}
+
+.button2:hover {
+    background-color: rgb(8, 8, 133);
 }
 
 .error_section p {
     color: var(--orange);
     text-align: center;
     display: block;
+}
+
+.logout_button {
+    padding: 5px 15px;
+  font-size: 1rem;
+  background: blue;
+  outline: none;
+  border-radius: 10px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: var(--white);
+}
+
+.logout_button:hover {
+    background-color: red;
 }
