@@ -82,7 +82,7 @@ export default function HomePage() {
           </Link>
           <Link href="/groups" className={styles.sidebarItem}>
             <div className={styles.sidebarIcon}>
-              <img src="/team-icon-29529.png" className={styles.sidebarIcon}/>
+              <img src="/group-avatar.png" className={styles.sidebarIcon}/>
             </div>
             <span>Groups</span>
           </Link>
