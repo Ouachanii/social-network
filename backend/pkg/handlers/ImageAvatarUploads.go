@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// UploadAvatar handles avatar image uploads
+// handle avatar image uploads
 func UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -28,7 +28,7 @@ func UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Invalid file type"))
 		return
 	}
-	outPath := filepath.Join("../../uploads/avatars", filename)
+	outPath := filepath.Join("uploads/avatars", filename)
 	os.MkdirAll(filepath.Dir(outPath), 0o755)
 	out, err := os.Create(outPath)
 	if err != nil {
@@ -41,7 +41,7 @@ func UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Avatar uploaded successfully"))
 }
 
-// UploadPostImage handles post image uploads
+// handle post image uploads
 func UploadPostImage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -61,7 +61,7 @@ func UploadPostImage(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Invalid file type"))
 		return
 	}
-	outPath := filepath.Join("../../uploads/posts", filename)
+	outPath := filepath.Join("uploads/posts", filename)
 	os.MkdirAll(filepath.Dir(outPath), 0o755)
 	out, err := os.Create(outPath)
 	if err != nil {

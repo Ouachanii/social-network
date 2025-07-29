@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import styles from '../styles/create-post.module.css';
 
-export function CreatePost({ onPostCreated }) {
+export function CreatePost({ onPostCreated, groupId }) {
   const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
   const [privacy, setPrivacy] = useState('public');
@@ -23,6 +23,9 @@ export function CreatePost({ onPostCreated }) {
       const formData = new FormData();
       formData.append('content', content);
       formData.append('privacy', privacy);
+      if (groupId) {
+        formData.append('group_id', groupId);
+      }
       if (image) {
         formData.append('image', image);
       }
@@ -40,12 +43,11 @@ export function CreatePost({ onPostCreated }) {
         throw new Error(data.error || 'Failed to create post');
       }
 
-      // Clear form
+      // clear the form
       setContent('');
       setImage(null);
       setPrivacy('public');
       
-      // Notify parent component
       if (onPostCreated) {
         onPostCreated();
       }
@@ -60,7 +62,16 @@ export function CreatePost({ onPostCreated }) {
     <div className={styles.createPost}>
       <form onSubmit={handleSubmit}>
         <div className={styles.userInput}>
-          <div className={styles.avatar}></div>
+          <div className={styles.avatar}>
+            <img
+              src='/default-avatar.jpg'
+              alt={'User Avatar'}
+              className={styles.authorAvatar}
+              onError={(e) => {
+                console.log('Avatar image failed to load:', e.target.src);
+              }}
+            />
+          </div>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}

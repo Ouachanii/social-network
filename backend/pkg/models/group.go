@@ -14,6 +14,19 @@ type Group struct {
 	Status      string `json:"status"`
 }
 
+type GroupEvent struct {
+	ID            int    `json:"id"`
+	GroupID       int    `json:"group_id"`
+	Title         string `json:"title"`
+	Description   string `json:"description"`
+	EventDate     string `json:"event_date"`
+	CreatedID     int    `json:"created_id"`
+	CreatedAt     string `json:"created_at"`
+	CreatorName   string `json:"creator_name"`
+	GoingCount    int    `json:"going_count"`
+	NotGoingCount int    `json:"not_going_count"`
+}
+
 func (db *DB) GetGroup(groupID int) (Group, error) {
 	var g Group
 	var timeCreated time.Time
@@ -164,4 +177,112 @@ func (db *DB) GetUsersForGroupInvitation(groupID string, search string, offset i
 	}
 
 	return users, nil
+}
+
+// GetGroupIDFromMember retrieves the group ID from a member ID
+func (db *DB) GetGroupIDFromMember(memberID int) (int, error) {
+	var groupID int
+	err := db.Db.QueryRow("SELECT group_id FROM group_members WHERE id = ?", memberID).Scan(&groupID)
+	return groupID, err
+}
+
+// CreateGroupEvent creates a new group event
+func (db *DB) CreateGroupEvent(groupID, creatorID int, title, description, eventDate string) (int, error) {
+	var eventID int
+	err := db.Db.QueryRow("INSERT INTO group_events (group_id, title, description, event_date, created_id) VALUES (?, ?, ?, ?, ?) RETURNING id",
+		groupID, title, description, eventDate, creatorID).Scan(&eventID)
+	return eventID, err
+}
+
+// GetGroupEvents retrieves all events for a group
+func (db *DB) GetGroupEvents(groupID int) ([]GroupEvent, error) {
+	rows, err := db.Db.Query(`
+		SELECT ge.id, ge.group_id, ge.title, ge.description, ge.event_date, ge.created_id, ge.created_at,
+		       u.first_name, u.last_name,
+		       (SELECT COUNT(*) FROM event_responses WHERE event_id = ge.id AND response = 'going') as going_count,
+		       (SELECT COUNT(*) FROM event_responses WHERE event_id = ge.id AND response = 'not_going') as not_going_count
+		FROM group_events ge
+		JOIN users u ON ge.created_id = u.id
+		WHERE ge.group_id = ?
+		ORDER BY ge.event_date ASC`, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var events []GroupEvent
+	for rows.Next() {
+		var event GroupEvent
+		var timeCreated time.Time
+		var firstName, lastName string
+
+		err := rows.Scan(&event.ID, &event.GroupID, &event.Title, &event.Description, &event.EventDate,
+			&event.CreatedID, &timeCreated, &firstName, &lastName, &event.GoingCount, &event.NotGoingCount)
+		if err != nil {
+			return nil, err
+		}
+
+		event.CreatedAt = timeCreated.Format("Jan 2, 2006 at 15:04")
+		event.CreatorName = firstName + " " + lastName
+		events = append(events, event)
+	}
+
+	return events, nil
+}
+
+// AddEventResponse adds or updates a user's response to an event
+func (db *DB) AddEventResponse(eventID, userID int, response string) error {
+	_, err := db.Db.Exec("INSERT OR REPLACE INTO event_responses (event_id, user_id, response) VALUES (?, ?, ?)",
+		eventID, userID, response)
+	return err
+}
+
+// GetUserEventResponse gets a user's response to a specific event
+func (db *DB) GetUserEventResponse(eventID, userID int) (string, error) {
+	var response string
+	err := db.Db.QueryRow("SELECT response FROM event_responses WHERE event_id = ? AND user_id = ?",
+		eventID, userID).Scan(&response)
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+	return response, err
+}
+
+// GetPendingRequests retrieves pending join requests for a group
+func (db *DB) GetPendingRequests(groupID int) ([]GroupRequest, error) {
+	rows, err := db.Db.Query(`
+		SELECT gm.id, gm.user_id, gm.created_at, u.first_name, u.last_name
+		FROM group_members gm
+		JOIN users u ON gm.user_id = u.id
+		WHERE gm.group_id = ? AND gm.status = 'pending'
+		ORDER BY gm.created_at DESC`, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var requests []GroupRequest
+	for rows.Next() {
+		var request GroupRequest
+		var timeCreated time.Time
+		var firstName, lastName string
+
+		err := rows.Scan(&request.ID, &request.UserID, &timeCreated, &firstName, &lastName)
+		if err != nil {
+			return nil, err
+		}
+
+		request.CreatedAt = timeCreated.Format("Jan 2, 2006 at 15:04")
+		request.Username = firstName + " " + lastName
+		requests = append(requests, request)
+	}
+
+	return requests, nil
+}
+
+type GroupRequest struct {
+	ID        int    `json:"id"`
+	UserID    int    `json:"user_id"`
+	Username  string `json:"username"`
+	CreatedAt string `json:"created_at"`
 }

@@ -1,5 +1,5 @@
-.groupsContainer {
-  max-width: 940px;
+.container {
+  max-width: 800px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -8,150 +8,574 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e4e6eb;
 }
 
-.title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #050505;
+.header h1 {
   margin: 0;
+  color: #050505;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.createButton {
+  background: #1b74e4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.createButton:hover {
+  background: #166fe5;
 }
 
 .createForm {
   background: white;
   border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 24px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  padding: 24px;
+  margin-bottom: 30px;
 }
 
-.formTitle {
+.createForm h2 {
+  margin: 0 0 20px 0;
+  color: #050505;
   font-size: 20px;
   font-weight: 600;
-  color: #050505;
-  margin: 0 0 16px 0;
 }
 
-.inputGroup {
-  margin-bottom: 16px;
+.formGroup {
+  margin-bottom: 20px;
 }
 
-.label {
+.formGroup label {
   display: block;
-  font-size: 15px;
-  font-weight: 600;
-  color: #050505;
   margin-bottom: 8px;
+  color: #050505;
+  font-weight: 600;
+  font-size: 14px;
 }
 
-.input {
+.formGroup input,
+.formGroup textarea {
   width: 100%;
   padding: 12px;
-  border: 1px solid #dddfe2;
+  border: 1px solid #e4e6eb;
   border-radius: 6px;
   font-size: 15px;
-  margin-bottom: 8px;
+  transition: border-color 0.2s ease;
 }
 
-.input:focus {
+.formGroup input:focus,
+.formGroup textarea:focus {
   outline: none;
   border-color: #1b74e4;
-  box-shadow: 0 0 0 2px rgba(27, 116, 228, 0.2);
 }
 
-.button {
+.formGroup textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.submitButton {
   background: #1b74e4;
   color: white;
   border: none;
-  padding: 12px 24px;
   border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submitButton:hover {
+  background: #166fe5;
+}
+
+.cancelButton {
+  background: #e4e6eb;
+  color: #050505;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 24px;
   font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.button:hover {
-  background: #1662c1;
-}
-
-.message {
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  animation: fadeOut 3s forwards;
-}
-
-.message.success {
-  background: #e3f2fd;
-  color: #1b74e4;
-}
-
-.message.error {
-  background: #ffebee;
-  color: #d32f2f;
+.cancelButton:hover {
+  background: #d8dadf;
 }
 
 .groupsList {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 16px;
-  list-style: none;
-  padding: 0;
 }
 
 .groupCard {
   background: white;
   border-radius: 8px;
-  padding: 16px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
-  cursor: pointer;
+  padding: 20px;
+  transition: box-shadow 0.2s ease;
 }
 
 .groupCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
-.groupTitle {
+.groupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.groupHeader h3 {
+  margin: 0;
+  color: #050505;
   font-size: 18px;
   font-weight: 600;
-  color: #050505;
-  margin: 0 0 8px 0;
 }
 
-.groupDesc {
+.status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.creator {
+  background: #e7f3ff;
+  color: #1877f2;
+}
+
+.member {
+  background: #e8f5e8;
+  color: #42b883;
+}
+
+.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.invited {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.notMember {
+  background: #f8f9fa;
+  color: #6c757d;
+}
+
+.description {
   color: #65676B;
-  margin: 0;
   font-size: 14px;
+  line-height: 1.4;
+  margin: 0 0 12px 0;
 }
 
-.loadingContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-}
-
-.loadingSpinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #1b74e4;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.groupMeta {
   margin-bottom: 16px;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.groupMeta span {
+  color: #65676B;
+  font-size: 12px;
 }
 
-@keyframes fadeOut {
-  0% { opacity: 1; }
-  70% { opacity: 1; }
-  100% { opacity: 0; }
+.groupActions {
+  display: flex;
+  gap: 12px;
+}
+
+.joinButton,
+.viewButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.joinButton {
+  background: #1b74e4;
+  color: white;
+}
+
+.joinButton:hover {
+  background: #166fe5;
+}
+
+.viewButton {
+  background: #e4e6eb;
+  color: #050505;
+}
+
+.viewButton:hover {
+  background: #d8dadf;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #65676B;
+  font-size: 16px;
+}
+
+.error {
+  text-align: center;
+  padding: 40px;
+  color: #d32f2f;
+  background: #ffebee;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.retryButton {
+  background: #1b74e4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+.retryButton:hover {
+  background: #166fe5;
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: 40px;
+  color: #65676B;
+  font-size: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.loadingMore {
+  text-align: center;
+  padding: 20px;
+  color: #65676B;
+  font-size: 14px;
+}
+
+/* Group Detail Page Styles */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #e4e6eb;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 12px 24px;
+  border: none;
+  background: none;
+  color: #65676B;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  color: #1b74e4;
+}
+
+.tab.active {
+  color: #1b74e4;
+  border-bottom-color: #1b74e4;
+}
+
+.tabContent {
+  min-height: 400px;
+}
+
+.pendingRequests {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.pendingRequests h3 {
+  margin: 0 0 12px 0;
+  color: #856404;
+  font-size: 16px;
+}
+
+.requestItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #ffeaa7;
+}
+
+.requestItem:last-child {
+  border-bottom: none;
+}
+
+.requestActions {
+  display: flex;
+  gap: 8px;
+}
+
+.approveButton {
+  background: #42b883;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.rejectButton {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.eventsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.eventsHeader h3 {
+  margin: 0;
+  color: #050505;
+  font-size: 20px;
+}
+
+.createEventButton {
+  background: #1b74e4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.createEventForm {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.createEventForm h4 {
+  margin: 0 0 16px 0;
+  color: #050505;
+  font-size: 16px;
+}
+
+.eventsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.eventCard {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  padding: 16px;
+}
+
+.eventHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.eventHeader h4 {
+  margin: 0;
+  color: #050505;
+  font-size: 16px;
+}
+
+.eventDate {
+  color: #65676B;
+  font-size: 12px;
+}
+
+.eventStats {
+  display: flex;
+  gap: 16px;
+  margin: 12px 0;
+  font-size: 12px;
+  color: #65676B;
+}
+
+.eventActions {
+  display: flex;
+  gap: 8px;
+}
+
+.goingButton,
+.notGoingButton {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.goingButton {
+  background: #42b883;
+  color: white;
+}
+
+.notGoingButton {
+  background: #dc3545;
+  color: white;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modalContent h3 {
+  margin: 0 0 16px 0;
+  color: #050505;
+  font-size: 18px;
+}
+
+.searchBox {
+  margin-bottom: 16px;
+}
+
+.searchBox input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e4e6eb;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.usersList {
+  margin-bottom: 16px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.userItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.userItem:last-child {
+  border-bottom: none;
+}
+
+.addButton {
+  background: #1b74e4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.selectedUsers {
+  margin-bottom: 16px;
+}
+
+.selectedUser {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: #f0f2f5;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.removeButton {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.inviteButton {
+  background: #1b74e4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
 }

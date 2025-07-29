@@ -177,7 +177,7 @@ export default function ProfilePage() {
       <div className={styles.profileHeader}>
         <div className={styles.avatarSection}>
           <img 
-            src={profile.avatarUrl || '/default-avatar.png'} 
+            src={profile.avatarUrl || '/default-avatar.jpg'} 
             alt="Profile" 
             className={styles.avatar}
           />

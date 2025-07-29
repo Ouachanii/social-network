@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"social-network/pkg/db/sqlite"
 	"social-network/pkg/handlers"
@@ -26,6 +27,7 @@ func main() {
 	http.HandleFunc("/api/followResponse", handlers.HandleCORS(handlers.TokenMiddleware(handlers.FollowResponse)))
 
 	http.HandleFunc("/api/posts", handlers.HandleCORS(handlers.TokenMiddleware(handlers.PostsHandler)))
+	http.Handle("/api/posts/", handlers.HandleCORSHandler(handlers.TokenMiddlewareHandler(handlers.PostRouter())))
 	http.HandleFunc("/api/upload/avatar", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UploadAvatar)))
 	http.HandleFunc("/api/upload/post-image", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UploadPostImage)))
 
@@ -35,8 +37,19 @@ func main() {
 	http.HandleFunc("/api/groups/invite", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupInviteHandler)))
 	http.HandleFunc("/api/groups/request", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupRequestHandler)))
 	http.HandleFunc("/api/groups/events", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupEventsHandler)))
+	http.HandleFunc("/api/groups/events/response", handlers.HandleCORS(handlers.TokenMiddleware(handlers.EventResponseHandler)))
+
+	http.HandleFunc("/api/groups/", func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/requests") {
+			handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupRequestsHandler))(w, r)
+		} else {
+			handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupDetailHandler))(w, r)
+		}
+	})
 
 	http.HandleFunc("/api/notifications", handlers.HandleCORS(handlers.TokenMiddleware(handlers.NotificationsHandler)))
+
+	http.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
 
 	http.HandleFunc("/", handlers.HomeHandler)
 
