@@ -10,7 +10,8 @@
 .header {
   position: sticky;
   top: 0;
-  background: white;
+  color: white;
+  background: var(--cyan);
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   padding: 8px 16px;
   display: flex;
