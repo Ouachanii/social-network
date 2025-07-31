@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -117,6 +118,7 @@ func (db *DB) GetNotifications(userId int) ([]Notification, error) {
 
 // MarkNotificationAsRead updates a notification as read
 func (db *DB) MarkNotificationAsRead(notifID int) error {
+	fmt.Println("Marking notification as read:", notifID)
 	_, err := db.Db.Exec("UPDATE notifications SET is_read = 1 WHERE recever_id = ?", notifID)
 	return err
 }

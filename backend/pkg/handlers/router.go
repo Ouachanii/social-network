@@ -57,7 +57,7 @@ func NotRouter() http.Handler {
 
 	// Add routes for notifications
 	router.AddRoute("/api/notifications", NotificationsHandler)
-	router.AddRoute("/api/notifications/{notificationId}/read", MarkNotificationAsReadHandler)
+	// router.AddRoute("/api/notifications/{notificationId}/read", MarkNotificationAsReadHandler)
 
 	return router
 }

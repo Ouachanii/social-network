@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"social-network/pkg/models"
@@ -41,11 +42,14 @@ func MarkNotificationAsReadHandler(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		NotificationID int `json:"notification_id"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.NotificationID == 0 {
+	err := json.NewDecoder(r.Body).Decode(&req)
+	// fmt.Println("MarkNotificationAsReadHandler called", err)
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "invalid notification_id"})
 		return
 	}
+	fmt.Println("Marking notification as read:", req.NotificationID)
 
 	if err := models.Db.MarkNotificationAsRead(req.NotificationID); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
