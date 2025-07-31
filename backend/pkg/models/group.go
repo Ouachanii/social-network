@@ -89,7 +89,7 @@ func (db *DB) GetGroups(userID int, offset int) ([]Group, error) {
 		if err := rows.Scan(&g.ID, &g.Title, &g.Description, &timeCreated, &g.Status); err != nil {
 			return nil, err
 		}
-		g.CreatedAt = timeCreated.Format("Jan 2, 2006 at 3:04")
+		g.CreatedAt = timeCreated.Format("Jan 2, 2006 at 15:04")
 		groups = append(groups, g)
 	}
 	return groups, nil
@@ -118,7 +118,7 @@ func (db *DB) SearchGroups(userID int, searchQuery string, offset int) ([]Group,
 		if err := rows.Scan(&g.ID, &g.Title, &g.Description, &timeCreated, &g.Status); err != nil {
 			return nil, err
 		}
-		g.CreatedAt = timeCreated.Format("Jan 2, 2006 at 3:04")
+		g.CreatedAt = timeCreated.Format("Jan 2, 2006 at 15:04")
 		groups = append(groups, g)
 	}
 	return groups, nil
