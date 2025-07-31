@@ -39,6 +39,8 @@ export default function NotificationsPage() {
       }
 
       const data = await response.json();
+      console.log(`Fetched notifications: ${JSON.stringify(data.notifications)}`);
+      
       setNotifications(data.notifications || []);
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -56,15 +58,17 @@ export default function NotificationsPage() {
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
+      console.log(`Marking notification ${notificationId} as read`);
 
       // Mark notification as read
-      await fetch(`http://localhost:8080/api/notifications/${notificationId}/read`, {
+      await fetch(`http://localhost:8080/api/notifications/read`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        credentials: 'include'
+        credentials: 'include',
+        body: JSON.stringify({ notification_id: notificationId }),
       });
 
       // Update local state
@@ -95,7 +99,7 @@ export default function NotificationsPage() {
         <div className={styles.errorIcon}>⚠️</div>
         <h2 className={styles.errorTitle}>Something went wrong</h2>
         <p className={styles.errorMessage}>{error}</p>
-        <button 
+        <button
           className={styles.retryButton}
           onClick={fetchNotifications}
         >
@@ -113,17 +117,27 @@ export default function NotificationsPage() {
 
       {notifications.length > 0 ? (
         <div className={styles.list}>
+          <span> { notifications.map(notification => (
+          console.log(`Notification ID: ${notification
+          }`)
+    
+          ))}</span>
           {notifications.map(notification => (
             <div
               key={notification.id}
-              className={`${styles.notificationItem} ${!notification.isRead ? styles.unread : ''}`}
+              className={`${styles.notificationItem} ${notification.isRead === 0 ? styles.unread : styles.read
+                }`}
               onClick={() => handleNotificationClick(notification.id)}
             >
+              <span>
+
+                {/* {notification.isRead } lhjkhkjhkjhjk */}
+              </span>
               <div className={styles.avatar}>
                 {notification.senderAvatar && (
-                  <img 
-                    src={notification.senderAvatar} 
-                    alt="Sender" 
+                  <img
+                    src={notification.senderAvatar}
+                    alt="Sender"
                     className={styles.avatar}
                   />
                 )}

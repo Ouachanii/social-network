@@ -43,7 +43,10 @@
 }
 
 .notificationItem.unread {
-  background-color: #e7f3ff;
+  background-color: #0e65bb;
+}
+.notificationItem.read {
+  background-color: #f0f2f5;
 }
 
 .notificationItem.unread:hover {
