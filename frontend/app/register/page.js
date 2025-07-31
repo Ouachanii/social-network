@@ -48,6 +48,7 @@ export default function Register() {
         if (response.status == 400) {
           setErrMessage(result.error_message);
         } else {
+          alert(response.status)
           alert(result.error_message);
         }
       } else {

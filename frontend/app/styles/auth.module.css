@@ -1,150 +1,174 @@
 main .main_container {
     display: flex;
     justify-content: center;
-    justify-items: center;
     align-items: center;
-    flex-direction: column;
     min-height: 80vh;
     width: 100%;
 }
 
+.title {
+    text-align: center;
+    padding: 30px 0;
+    color: #2c3e50;
+    font-size: 2rem;
+    font-weight: 300;
+}
+
 form.login, form.register {
     width: 400px;
-    background-color: var(--cyan);
-    /* border: 2px solid var(--orange); */
-    box-shadow: var(--cyan) 0px 7px 29px 0px;
-    border-radius: 15px;
-    padding: 40px 20px;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    padding: 40px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-.title {
-    display: block;
-    background-color: var(--cyan);
-    text-align: center;
-    padding-bottom: 50px;
-    padding-top: 30px;
-    color: white;
-    width: auto;
-}
+
 form .header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 35px;
+    margin-bottom: 30px;
+    text-align: center;
 }
 
 form .header h1 {
-    color: var(--orange);
-    font-size: 55px;
-    font-family: "Lavishly Yours", cursive;
-    text-transform: capitalize;
+    color: #3498db;
+    font-size: 2rem;
+    font-weight: 500;
+    margin-bottom: 5px;
 }
 
 form .header h3 {
-    color: var(--white);
-    align-self: end;
-    font-size: 13px;
-    position: relative;
-    left: -42px;
-    font-style: italic;
-    text-transform: capitalize;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    font-weight: 400;
 }
 
 form .body {
-    padding: 7px 5px;
+    margin-bottom: 20px;
 }
 
 form .body .container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
 }
 
-form .body input, .body select {
+form .body input, 
+form .body select, 
+form .body textarea {
     width: 100%;
-    height: 30px;
-    padding: 0 5px;
-    background-color: transparent;
-    border: 2px solid white;
-    border-radius: 10px;
-    color:white;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background-color: white;
+    color: #2d3748;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
 }
 
-.body textarea {
-    width: 100%;
-    /* height: 30px; */
-    padding: 0 5px;
-    background-color: var(--cyan);
-    border: 2px solid white;
-    border-radius: 10px;
-    color: white;
+form .body input:focus, 
+form .body select:focus, 
+form .body textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
-.body input::placeholder{
-    color:white;
-    font-size: 10px;
-    text-transform: capitalize;
+form .body input::placeholder {
+    color: #a0aec0;
+}
+
+form .body textarea {
+    min-height: 80px;
+    resize: vertical;
 }
 
 form .body .submit {
-    margin: 0 auto;
-    margin-top: 10px;
-}
-
-form .footer{
-    margin-top: 25px;
-    display: flex;
-    justify-content: center;
+    margin-top: 20px;
 }
 
 .button1 {
-  padding: 5px 15px;
-  font-size: 1rem;
-  background-color: rgb(28, 28, 44);
-  outline: none;
-  border-radius: 10px;
-  font-weight: 600;
-  text-transform: capitalize;
-  color: white;
-  transition: .4s ease-in-out;
+    width: 100%;
+    padding: 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-.button1:hover{
-  background-color: rgb(64, 64, 85);
+.button1:hover {
+    background-color: #2980b9;
 }
 
+.button1:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* Link Button Styles */
 .button2 {
-  padding: 5px 15px;
-  font-size: 1rem;
-  background-color: rgb(28, 28, 44);
-  outline: none;
-  border-radius: 10px;
-  font-weight: 600;
-  text-transform: capitalize;
-  color: var(--white);
-transition: .4s ease-in-out;
-}
-
-.button2:hover {
-    background-color: rgb(64, 64, 85);
-}
-
-.error_section p {
-    color: var(--orange);
+    width: 100%;
+    padding: 10px;
+    background-color: transparent;
+    color: #3498db;
+    border: 1px solid #3498db;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
     text-align: center;
     display: block;
 }
 
-.logout_button {
-    padding: 5px 15px;
-  font-size: 1rem;
-  background: rgb(64, 64, 85);
-  outline: none;
-  border-radius: 10px;
-  font-weight: 600;
-  text-transform: capitalize;
-  color: var(--white);
+.button2:hover {
+    background-color: #f0f7ff;
+    border-color: #2980b9;
+    color: #2980b9;
 }
 
-.logout_button:hover {
-    background-color: red;
+/* Error Message Styles */
+/* Footer Container for these elements */
+form .footer .container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+form .footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.error_section p {
+    color: #e74c3c;
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+/* File input styling */
+.avatar input[type="file"] {
+    padding: 8px;
+    border: 1px dashed #e2e8f0;
+    border-radius: 6px;
+    background-color: white;
+}
+
+.avatar input[type="file"]::file-selector-button {
+    padding: 6px 12px;
+    background-color: #edf2f7;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    color: #4a5568;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.avatar input[type="file"]::file-selector-button:hover {
+    background-color: #e2e8f0;
 }
