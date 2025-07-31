@@ -32,3 +32,27 @@ func NotificationsHandler(w http.ResponseWriter, r *http.Request) {
 		"notifications": notifications,
 	})
 }
+
+func MarkNotificationAsReadHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	var req struct {
+		NotificationID int `json:"notification_id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.NotificationID == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid notification_id"})
+		return
+	}
+
+	if err := models.Db.MarkNotificationAsRead(req.NotificationID); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+}

@@ -51,3 +51,13 @@ func PostRouter() http.Handler {
 
 	return router
 }
+
+func NotRouter() http.Handler {
+	router := NewRouter()
+
+	// Add routes for notifications
+	router.AddRoute("/api/notifications", NotificationsHandler)
+	router.AddRoute("/api/notifications/{notificationId}/read", MarkNotificationAsReadHandler)
+
+	return router
+}

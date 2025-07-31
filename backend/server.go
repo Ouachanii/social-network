@@ -49,6 +49,7 @@ func main() {
 	})
 
 	http.HandleFunc("/api/notifications", handlers.HandleCORS(handlers.TokenMiddleware(handlers.NotificationsHandler)))
+	http.Handle("/api/notifications/", handlers.HandleCORSHandler(handlers.TokenMiddlewareHandler(handlers.NotRouter())))
 
 	http.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
 
