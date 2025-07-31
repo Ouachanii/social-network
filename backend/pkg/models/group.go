@@ -95,6 +95,35 @@ func (db *DB) GetGroups(userID int, offset int) ([]Group, error) {
 	return groups, nil
 }
 
+// SearchGroups retrieves groups that match the search query
+func (db *DB) SearchGroups(userID int, searchQuery string, offset int) ([]Group, error) {
+	query := `
+		SELECT g.id, g.title, g.description, g.created_at,
+		COALESCE((SELECT status FROM group_members WHERE group_id = g.id AND user_id = ?), '') AS status 
+		FROM groups g 
+		WHERE g.title LIKE ? OR g.description LIKE ?
+		ORDER BY g.id DESC LIMIT 4 OFFSET ?`
+
+	searchPattern := "%" + searchQuery + "%"
+	rows, err := db.Db.Query(query, userID, searchPattern, searchPattern, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var groups []Group
+	for rows.Next() {
+		var g Group
+		var timeCreated time.Time
+		if err := rows.Scan(&g.ID, &g.Title, &g.Description, &timeCreated, &g.Status); err != nil {
+			return nil, err
+		}
+		g.CreatedAt = timeCreated.Format("Jan 2, 2006 at 3:04")
+		groups = append(groups, g)
+	}
+	return groups, nil
+}
+
 // JoinGroup adds a user to a group
 func (db *DB) JoinGroup(groupID, userID int) (int64, error) {
 	_, err := db.GetGroup(groupID)
@@ -287,4 +316,16 @@ func (db *DB) GetPendingRequests(groupID int) ([]GroupRequest, error) {
 	return requests, nil
 }
 
+// GetGroupMemberID retrieves the member ID for a user in a group
+func (db *DB) GetGroupMemberID(groupID, userID int) (int, error) {
+	var memberID int
+	err := db.Db.QueryRow("SELECT id FROM group_members WHERE group_id = ? AND user_id = ?", groupID, userID).Scan(&memberID)
+	return memberID, err
+}
 
+// GetUserIDFromMember retrieves the user ID from a member ID
+func (db *DB) GetUserIDFromMember(memberID int) (int, error) {
+	var userID int
+	err := db.Db.QueryRow("SELECT user_id FROM group_members WHERE id = ?", memberID).Scan(&userID)
+	return userID, err
+}

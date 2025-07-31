@@ -35,6 +35,7 @@ func main() {
 
 	http.HandleFunc("/api/groups", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupsHandler)))
 	http.HandleFunc("/api/groups/invite", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupInviteHandler)))
+	http.HandleFunc("/api/groups/invitation/response", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupInvitationResponseHandler)))
 	http.HandleFunc("/api/groups/request", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupRequestHandler)))
 	http.HandleFunc("/api/groups/events", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupEventsHandler)))
 	http.HandleFunc("/api/groups/events/response", handlers.HandleCORS(handlers.TokenMiddleware(handlers.EventResponseHandler)))

@@ -9,7 +9,7 @@ export default function GroupDetailPage() {
     const router = useRouter();
     const params = useParams();
     const groupId = params.id;
-    
+
     const [group, setGroup] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -17,6 +17,8 @@ export default function GroupDetailPage() {
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [inviteUsers, setInviteUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [selectedUsers, setSelectedUsers] = useState([]);
     const [pendingRequests, setPendingRequests] = useState([]);
     const [events, setEvents] = useState([]);
     const [showCreateEvent, setShowCreateEvent] = useState(false);
@@ -120,15 +122,16 @@ export default function GroupDetailPage() {
                 },
                 body: JSON.stringify({
                     group_id: parseInt(groupId),
-                    user_ids: inviteUsers.map(user => user.id)
+                    user_ids: selectedUsers.map(user => user.id)
                 }),
                 credentials: 'include'
             });
 
             if (response.ok) {
                 setShowInviteModal(false);
-                setInviteUsers([]);
+                setSelectedUsers([]);
                 setSearchQuery('');
+                setSearchResults([]);
             }
         } catch (error) {
             console.error('Error inviting users:', error);
@@ -150,7 +153,7 @@ export default function GroupDetailPage() {
 
             if (response.ok) {
                 const data = await response.json();
-                setInviteUsers(data.users || []);
+                setSearchResults(data.users || []);
             }
         } catch (error) {
             console.error('Error searching users:', error);
@@ -183,7 +186,7 @@ export default function GroupDetailPage() {
 
     const handleCreateEvent = async (e) => {
         e.preventDefault();
-        
+
         try {
             const token = localStorage.getItem('token');
             const response = await fetch('http://localhost:8080/api/groups/events', {
@@ -284,7 +287,7 @@ export default function GroupDetailPage() {
                     <span className={styles.meta}>Created: {group.created_at}</span>
                 </div>
                 <div className={styles.groupActions}>
-                    {group.status === 'creator' && (
+                    {(group.status === 'creator' || group.status === 'approved') && (
                         <button
                             onClick={() => setShowInviteModal(true)}
                             className={styles.inviteButton}
@@ -335,12 +338,18 @@ export default function GroupDetailPage() {
                 >
                     Events
                 </button>
+                <button
+                    className={`${styles.tab} ${activeTab === 'invite' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('invite')}
+                >
+                    Members
+                </button>
             </div>
 
             {/* posts Tab */}
             {activeTab === 'posts' && (
                 <div className={styles.tabContent}>
-                    <CreatePost onPostCreated={() => {}} groupId={groupId} />
+                    <CreatePost onPostCreated={() => { }} groupId={groupId} />
                     <PostFeed groupId={groupId} />
                 </div>
             )}
@@ -438,60 +447,84 @@ export default function GroupDetailPage() {
                 </div>
             )}
 
-            {/* Invite Modal */}
-            {showInviteModal && (
-                <div className={styles.modal}>
-                    <div className={styles.modalContent}>
-                        <h3>Invite Members</h3>
-                        <div className={styles.searchBox}>
-                            <input
-                                type="text"
-                                placeholder="Search users..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                        </div>
-                        <div className={styles.usersList}>
-                            {inviteUsers.map(user => (
-                                <div key={user.id} className={styles.userItem}>
-                                    <span>{user.first_name} {user.last_name}</span>
-                                    <button
-                                        onClick={() => {
-                                            if (!inviteUsers.find(u => u.id === user.id)) {
-                                                setInviteUsers([...inviteUsers, user]);
-                                            }
-                                        }}
-                                        className={styles.addButton}
-                                    >
-                                        Add
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                        <div className={styles.selectedUsers}>
-                            {inviteUsers.map(user => (
-                                <div key={user.id} className={styles.selectedUser}>
-                                    <span>{user.first_name} {user.last_name}</span>
-                                    <button
-                                        onClick={() => setInviteUsers(inviteUsers.filter(u => u.id !== user.id))}
-                                        className={styles.removeButton}
-                                    >
-                                        Remove
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                        <div className={styles.modalActions}>
-                            <button onClick={handleInviteUsers} className={styles.submitButton}>
-                                Send Invitations
-                            </button>
-                            <button onClick={() => setShowInviteModal(false)} className={styles.cancelButton}>
-                                Cancel
-                            </button>
-                        </div>
+            {/* Invite Tab */}
+            {activeTab === 'invite' && (
+                <div className={styles.tabContent}>
+                    <div className={styles.eventsHeader}>
+                        <h3>Group Members</h3>
+                        <button
+                            onClick={() => setShowInviteModal(true)}
+                            className={styles.createEventButton}
+                        >
+                            invite Members
+                        </button>
                     </div>
-                </div>
-            )}
+                    {showInviteModal && (
+                        <div className={styles.modal}>
+                            <div className={styles.modalContent}>
+                                <div className={styles.searchBox}>
+                                    <input
+                                        type="text"
+                                        placeholder="Search users..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
+                                    <button onClick={searchUsers} className={styles.searchButton}>
+                                        Search
+                                    </button>
+                                </div>
+                                <div className={styles.usersList}>
+                                    {searchResults.map(user => (
+                                        <div key={user.id} className={styles.userItem}>
+                                            <span>{user.first_name} {user.last_name}</span>
+                                            <button
+                                                onClick={() => {
+                                                    if (!selectedUsers.find(u => u.id === user.id)) {
+                                                        setSelectedUsers([...selectedUsers, user]);
+                                                    }
+                                                }}
+                                                className={styles.addButton}
+                                            >
+                                                Add
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className={styles.selectedUsers}>
+                                    <h4>Selected Users:</h4>
+                                    {selectedUsers.map(user => (
+                                        <div key={user.id} className={styles.selectedUser}>
+                                            <span>{user.first_name} {user.last_name}</span>
+                                            <button
+                                                onClick={() => setSelectedUsers(selectedUsers.filter(u => u.id !== user.id))}
+                                                className={styles.removeButton}
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className={styles.modalActions}>
+                                    <button
+                                        onClick={handleInviteUsers}
+                                        className={styles.submitButton}
+                                        disabled={selectedUsers.length === 0}
+                                    >
+                                        Send Invitations ({selectedUsers.length})
+                                    </button>
+                                    <button onClick={() => {
+                                        setShowInviteModal(false);
+                                        setSelectedUsers([]);
+                                        setSearchQuery('');
+                                        setSearchResults([]);
+                                    }} className={styles.cancelButton}>
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>)}
         </div>
     );
 } 

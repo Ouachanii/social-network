@@ -48,7 +48,7 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	postID, err := models.Db.CreatePost(userID, content, privacy, imagePath, groupID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to create post: " + err.Error()})
 		return
 	}
 
@@ -107,7 +107,7 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 	posts, err := models.Db.GetPostsWithPrivacy(userID, "WHERE group_id = 0", []interface{}{}, offset)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to fetch posts: " + err.Error()})
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -190,11 +190,7 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, ok := r.Context().Value("userID").(int)
-	if !ok || userID == 0 {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
+	userID := r.Context().Value("userID").(int)
 
 	// Extract post ID from URL path
 	pathParts := strings.Split(r.URL.Path, "/")
@@ -211,19 +207,49 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil || postID == 0 {
 		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid post ID"})
+		return
+	}
+
+	// Parse multipart form
+	err = r.ParseMultipartForm(5 << 20) // 5 MB max for comments
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to parse form data"})
 		return
 	}
 
 	content := r.FormValue("content")
-	if content == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	var imagePath *string
+
 	file, header, err := r.FormFile("image")
 	if err == nil && file != nil {
 		defer file.Close()
+
+		// Validate file type
+		contentType := header.Header.Get("Content-Type")
+		allowedTypes := []string{"image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"}
+		isAllowed := false
+		for _, allowedType := range allowedTypes {
+			if contentType == allowedType {
+				isAllowed = true
+				break
+			}
+		}
+
+		if !isAllowed {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed."})
+			return
+		}
+
+		// Check file size (limit to 5MB for comments)
+		if header.Size > 5*1024*1024 {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "File size too large. Maximum size is 5MB."})
+			return
+		}
+
 		filename := filepath.Base(header.Filename)
 		imageDir := "uploads/comments/"
 		os.MkdirAll(imageDir, os.ModePerm)
@@ -236,10 +262,17 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Allow comments with only image (no text content required)
+	if content == "" && imagePath == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Comment must have either content or an image"})
+		return
+	}
+
 	commentID, err := models.Db.InsertComment(postID, userID, content, imagePath)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to create comment"})
 		return
 	}
 
@@ -247,12 +280,12 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 	comment, err := models.Db.GetComment(commentID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to retrieve created comment"})
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "Comment created successfully",
 		"comment": comment,
 	})
 }
@@ -294,7 +327,7 @@ func GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 	comments, err := models.Db.GetCommentsByPost(postID, offset)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to fetch comments: " + err.Error()})
 		return
 	}
 

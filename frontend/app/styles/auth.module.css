@@ -99,7 +99,7 @@ form .footer{
 .button1 {
   padding: 5px 15px;
   font-size: 1rem;
-  background: rgb(64, 64, 85);
+  background-color: rgb(28, 28, 44);
   outline: none;
   border-radius: 10px;
   font-weight: 600;
@@ -109,12 +109,13 @@ form .footer{
 }
 
 .button1:hover{
-  background-color: rgb(28, 28, 44);}
+  background-color: rgb(64, 64, 85);
+}
 
 .button2 {
   padding: 5px 15px;
   font-size: 1rem;
-  background: rgb(64, 64, 85);
+  background-color: rgb(28, 28, 44);
   outline: none;
   border-radius: 10px;
   font-weight: 600;
@@ -124,7 +125,7 @@ transition: .4s ease-in-out;
 }
 
 .button2:hover {
-    background-color: rgb(28, 28, 44);
+    background-color: rgb(64, 64, 85);
 }
 
 .error_section p {

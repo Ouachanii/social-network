@@ -7,6 +7,9 @@ export function CommentSection({ postId, onCommentAdded }) {
     const [comments, setComments] = useState([]);
     const [commentInput, setCommentInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
+    const [error, setError] = useState('');
 
     const fetchComments = async () => {
         try {
@@ -33,7 +36,7 @@ export function CommentSection({ postId, onCommentAdded }) {
     };
 
     const handleCommentSubmit = async () => {
-        if (!commentInput.trim()) return;
+        if (!commentInput.trim() && !selectedImage) return;
 
         setIsLoading(true);
         try {
@@ -42,6 +45,10 @@ export function CommentSection({ postId, onCommentAdded }) {
 
             const formData = new FormData();
             formData.append('content', commentInput);
+            
+            if (selectedImage) {
+                formData.append('image', selectedImage);
+            }
 
             const response = await fetch(`http://localhost:8080/api/posts/${postId}/comments`, {
                 method: 'POST',
@@ -53,7 +60,8 @@ export function CommentSection({ postId, onCommentAdded }) {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to create comment');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Failed to create comment');
             }
 
             const data = await response.json();
@@ -61,8 +69,10 @@ export function CommentSection({ postId, onCommentAdded }) {
             // Add new comment to the list
             setComments(prev => [data.comment, ...prev]);
             
-            // Clear input
+            // Clear input and image
             setCommentInput('');
+            setSelectedImage(null);
+            setImagePreview(null);
             
             // Notify parent component
             if (onCommentAdded) {
@@ -70,9 +80,43 @@ export function CommentSection({ postId, onCommentAdded }) {
             }
         } catch (error) {
             console.error('Error creating comment:', error);
+            setError(error.message);
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleImageSelect = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+                return;
+            }
+            
+            // Validate file size (5MB limit)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image size must be less than 5MB');
+                return;
+            }
+            
+            setSelectedImage(file);
+            if (error) setError('');
+            
+            // Create preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setImagePreview(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeImage = () => {
+        setSelectedImage(null);
+        setImagePreview(null);
     };
 
 
@@ -84,26 +128,66 @@ export function CommentSection({ postId, onCommentAdded }) {
         <div className={styles.commentsSection}>
             {/* Comment Input */}
             <div className={styles.commentInput}>
-                <input
-                    type="text"
-                    placeholder="Write a comment..."
-                    value={commentInput}
-                    onChange={(e) => setCommentInput(e.target.value)}
-                    onKeyPress={(e) => {
-                        if (e.key === 'Enter' && !isLoading) {
-                            handleCommentSubmit();
-                        }
-                    }}
-                    className={styles.commentInputField}
-                    disabled={isLoading}
-                />
-                <button
-                    onClick={handleCommentSubmit}
-                    className={styles.commentSubmitButton}
-                    disabled={!commentInput.trim() || isLoading}
-                >
-                    {isLoading ? 'Posting...' : 'Post'}
-                </button>
+                <div className={styles.commentInputRow}>
+                    <input
+                        type="text"
+                        placeholder="Write a comment..."
+                        value={commentInput}
+                        onChange={(e) => {
+                            setCommentInput(e.target.value);
+                            if (error) setError('');
+                        }}
+                        onKeyPress={(e) => {
+                            if (e.key === 'Enter' && !isLoading) {
+                                handleCommentSubmit();
+                            }
+                        }}
+                        className={styles.commentInputField}
+                        disabled={isLoading}
+                    />
+                    <div className={styles.commentActions}>
+                        <label htmlFor={`image-upload-${postId}`} className={styles.imageUploadButton}>
+                            📷
+                            <input
+                                id={`image-upload-${postId}`}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageSelect}
+                                style={{ display: 'none' }}
+                            />
+                        </label>
+                        <button
+                            onClick={handleCommentSubmit}
+                            className={styles.commentSubmitButton}
+                            disabled={(!commentInput.trim() && !selectedImage) || isLoading}
+                        >
+                            {isLoading ? 'Posting...' : 'Post'}
+                        </button>
+                    </div>
+                </div>
+                
+                {/* Image Preview */}
+                {imagePreview && (
+                    <div className={styles.imagePreview}>
+                        <img src={imagePreview} alt="Preview" className={styles.previewImage} />
+                        <button onClick={removeImage} className={styles.removeImageButton}>
+                            ✕
+                        </button>
+                    </div>
+                )}
+                
+                {/* Error Display */}
+                {error && (
+                    <div className={styles.errorMessage}>
+                        {error}
+                        <button 
+                            onClick={() => setError('')} 
+                            className={styles.errorCloseButton}
+                        >
+                            ✕
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Comments List */}

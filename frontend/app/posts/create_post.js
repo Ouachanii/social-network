@@ -76,7 +76,6 @@ export function CreatePost({ onPostCreated, groupId }) {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="What's on your mind?"
-            required
             className={styles.textarea}
           />
         </div>
@@ -134,7 +133,7 @@ export function CreatePost({ onPostCreated, groupId }) {
 
           <button
             type="submit"
-            disabled={isLoading || !content.trim()}
+            disabled={isLoading}
             className={styles.postButton}
           >
             {isLoading ? 'Posting...' : 'Post'}

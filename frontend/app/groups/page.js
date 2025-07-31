@@ -13,6 +13,8 @@ export default function GroupsPage() {
     const [offset, setOffset] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
 
     const fetchGroups = async (loadMore = false) => {
         if (loadMore) {
@@ -30,7 +32,8 @@ export default function GroupsPage() {
             }
 
             const currentOffset = loadMore ? offset : 0;
-            const response = await fetch(`http://localhost:8080/api/groups?offset=${currentOffset}`, {
+            const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : '';
+            const response = await fetch(`http://localhost:8080/api/groups?offset=${currentOffset}${searchParam}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -134,6 +137,47 @@ export default function GroupsPage() {
         }
     };
 
+    const handleInvitationResponse = async (groupID, action) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:8080/api/groups/invitation/response', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    group_id: groupID, 
+                    action: action 
+                }),
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || `Failed to ${action} invitation`);
+            }
+
+            // Update the group status in the list
+            setGroups(prevGroups =>
+                prevGroups.map(group =>
+                    group.id === groupID
+                        ? { ...group, status: action === 'accept' ? 'approved' : '' }
+                        : group
+                )
+            );
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const handleSearch = async () => {
+        setIsSearching(true);
+        setOffset(0);
+        await fetchGroups();
+        setIsSearching(false);
+    };
+
     const getStatusText = (status) => {
         switch (status) {
             case 'creator':
@@ -201,6 +245,37 @@ export default function GroupsPage() {
                 </button>
             </div>
 
+            {/* Search Section */}
+            <div className={styles.searchSection}>
+                <div className={styles.searchInput}>
+                    <input
+                        type="text"
+                        placeholder="Search groups by title or description..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                    />
+                    <button 
+                        onClick={handleSearch}
+                        className={styles.searchButton}
+                        disabled={isSearching}
+                    >
+                        {isSearching ? 'Searching...' : 'Search'}
+                    </button>
+                </div>
+                {searchQuery && (
+                    <button 
+                        onClick={() => {
+                            setSearchQuery('');
+                            fetchGroups();
+                        }}
+                        className={styles.clearSearchButton}
+                    >
+                        Clear Search
+                    </button>
+                )}
+            </div>
+
             {showCreateForm && (
                 <div className={styles.createForm}>
                     <h2>Create New Group</h2>
@@ -265,6 +340,22 @@ export default function GroupsPage() {
                                         Request to Join
                                     </button>
                                 )}
+                                {group.status === 'invited' && (
+                                    <div className={styles.invitationActions}>
+                                        <button
+                                            onClick={() => handleInvitationResponse(group.id, 'accept')}
+                                            className={styles.acceptButton}
+                                        >
+                                            Accept Invitation
+                                        </button>
+                                        <button
+                                            onClick={() => handleInvitationResponse(group.id, 'reject')}
+                                            className={styles.rejectButton}
+                                        >
+                                            Reject Invitation
+                                        </button>
+                                    </div>
+                                )}
                                 {(group.status === 'approved' || group.status === 'creator') && (
                                     <button
                                         onClick={() => router.push(`/groups/${group.id}`)}
@@ -278,7 +369,7 @@ export default function GroupsPage() {
                     ))
                 ) : (
                     <div className={styles.emptyMessage}>
-                        No groups found. Create a group to get started!
+                        {searchQuery ? 'No groups found matching your search.' : 'No groups found. Create a group to get started!'}
                     </div>
                 )}
             </div>

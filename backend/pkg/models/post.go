@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 	"html"
 	"time"
@@ -30,10 +31,18 @@ func (db *DB) CreatePost(userID int, content, privacy string, imagePath *string,
 		}
 	}
 	var postID int
+	// Handle empty content by setting it to NULL in database
+	var contentValue interface{}
+	if content == "" {
+		contentValue = nil
+	} else {
+		contentValue = html.EscapeString(content)
+	}
+
 	err := db.Db.QueryRow(`
 		INSERT INTO posts (user_id, content, privacy, image_path, group_id)
 		VALUES (?, ?, ?, ?, ?) RETURNING id`,
-		userID, html.EscapeString(content), privacy, imagePath, groupID,
+		userID, contentValue, privacy, imagePath, groupID,
 	).Scan(&postID)
 
 	if err != nil {
@@ -105,13 +114,18 @@ func (db *DB) GetPostsWithPrivacy(userID int, baseWhere string, args []interface
 		var timeCreated time.Time
 		var firstName, lastName string
 
-		err := rows.Scan(&post.Pid, &post.Uid, &timeCreated, &post.Content,
+		var content sql.NullString
+		err := rows.Scan(&post.Pid, &post.Uid, &timeCreated, &content,
 			&post.Image, &post.Privacy, &firstName, &lastName, &post.Avatar, &post.NbComment)
 		if err != nil {
 			return nil, err
 		}
 
-		post.Content = html.UnescapeString(post.Content)
+		if content.Valid {
+			post.Content = html.UnescapeString(content.String)
+		} else {
+			post.Content = ""
+		}
 		post.Username = firstName + " " + lastName
 		post.CreatedAt = timeCreated.Format("Jan 2, 2006 at 15:04")
 		post.Likes = db.getPostLikeDisLike(post.Pid)
@@ -154,13 +168,18 @@ func (db *DB) GetGroupPosts(groupID, userID int, offset int) ([]Post, error) {
 		var timeCreated time.Time
 		var firstName, lastName string
 
-		err := rows.Scan(&post.Pid, &post.Uid, &timeCreated, &post.Content,
+		var content sql.NullString
+		err := rows.Scan(&post.Pid, &post.Uid, &timeCreated, &content,
 			&post.Image, &post.Privacy, &firstName, &lastName, &post.Avatar, &post.NbComment)
 		if err != nil {
 			return nil, err
 		}
 
-		post.Content = html.UnescapeString(post.Content)
+		if content.Valid {
+			post.Content = html.UnescapeString(content.String)
+		} else {
+			post.Content = ""
+		}
 		post.Username = firstName + " " + lastName
 		post.CreatedAt = timeCreated.Format("Jan 2, 2006 at 15:04")
 		post.Likes = db.getPostLikeDisLike(post.Pid)
@@ -177,12 +196,17 @@ func (db *DB) GetPost(postID, userID int) (Post, error) {
 	var p Post
 	var timeCreated time.Time
 	var fistname, lastname string
+	var content sql.NullString
 	err := db.Db.QueryRow(`SELECT posts.id, posts.user_id, posts.created_at, posts.content,posts.image_path,users.first_name, users.last_name, users.avatar FROM posts
-        JOIN users ON posts.user_id = users.id WHERE posts.id = ? `, postID).Scan(&p.Pid, &p.Uid, &timeCreated, &p.Content, &p.Image, &fistname, &lastname, &p.Avatar)
+        JOIN users ON posts.user_id = users.id WHERE posts.id = ? `, postID).Scan(&p.Pid, &p.Uid, &timeCreated, &content, &p.Image, &fistname, &lastname, &p.Avatar)
 	if err != nil {
 		return Post{}, err
 	}
-	p.Content = html.UnescapeString(p.Content)
+	if content.Valid {
+		p.Content = html.UnescapeString(content.String)
+	} else {
+		p.Content = ""
+	}
 	p.Username = fistname + " " + lastname
 	err = db.Db.QueryRow("SELECT COUNT(*) FROM comments WHERE post_id = ?", p.Pid).Scan(&p.NbComment)
 	if err != nil {

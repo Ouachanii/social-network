@@ -63,7 +63,17 @@ func GroupsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		offsetStr := r.URL.Query().Get("offset")
 		offset, _ := strconv.Atoi(offsetStr)
-		groups, err := models.Db.GetGroups(userID, offset)
+		searchQuery := r.URL.Query().Get("search")
+
+		var groups []models.Group
+		var err error
+
+		if searchQuery != "" {
+			groups, err = models.Db.SearchGroups(userID, searchQuery, offset)
+		} else {
+			groups, err = models.Db.GetGroups(userID, offset)
+		}
+
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -95,11 +105,11 @@ func GroupInviteHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Check if user is a member of the group
+		// Check if user is a member of the group (creator or approved member can invite)
 		status, err := models.Db.GetUserGroupStatus(request.GroupID, userID)
-		if err != nil || status == "" {
+		if err != nil || (status != "creator" && status != "approved") {
 			w.WriteHeader(http.StatusForbidden)
-			json.NewEncoder(w).Encode(map[string]string{"error": "You are not a member of this group"})
+			json.NewEncoder(w).Encode(map[string]string{"error": "You must be a member of this group to invite others"})
 			return
 		}
 
@@ -108,7 +118,26 @@ func GroupInviteHandler(w http.ResponseWriter, r *http.Request) {
 			// Check if user is already in the group
 			existingStatus, _ := models.Db.GetUserGroupStatus(request.GroupID, invitedUserID)
 			if existingStatus == "" {
-				models.Db.AddGroupMember(request.GroupID, invitedUserID, "invited")
+				// Add user to group with invited status
+				err := models.Db.AddGroupMember(request.GroupID, invitedUserID, "invited")
+				if err != nil {
+					continue // Skip if there's an error with this user
+				}
+
+				// Get the member ID for the notification
+				memberID, err := models.Db.GetGroupMemberID(request.GroupID, invitedUserID)
+				if err != nil {
+					continue
+				}
+
+				// Create notification for the invitation
+				notification := &models.Notification{
+					Type:       "group join invitation",
+					RelatedId:  memberID,
+					SenderId:   userID,
+					ReceiverId: invitedUserID,
+				}
+				models.Db.InsertNotification(notification)
 			}
 		}
 
@@ -179,6 +208,23 @@ func GroupRequestHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Get the member ID for the notification
+		memberID, err := models.Db.GetGroupMemberID(request.GroupID, userID)
+		if err == nil {
+			// Get group creator to send notification
+			creatorID, err := models.Db.GetGroupCreator(request.GroupID)
+			if err == nil {
+				// Create notification for the join request
+				notification := &models.Notification{
+					Type:       "group join request",
+					RelatedId:  memberID,
+					SenderId:   userID,
+					ReceiverId: creatorID,
+				}
+				models.Db.InsertNotification(notification)
+			}
+		}
+
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]string{"message": "Join request sent successfully"})
 		return
@@ -218,6 +264,20 @@ func GroupRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 		if request.Action == "approve" {
 			err = models.Db.ApproveJoinRequest(request.MemberID)
+			if err == nil {
+				// Get the user ID from the member ID to notify them
+				userID, err := models.Db.GetUserIDFromMember(request.MemberID)
+				if err == nil {
+					// Create notification for approved join request
+					notification := &models.Notification{
+						Type:       "group join request approved",
+						RelatedId:  request.MemberID,
+						SenderId:   userID, // The user who made the request
+						ReceiverId: userID, // Notify the same user
+					}
+					models.Db.InsertNotification(notification)
+				}
+			}
 		} else if request.Action == "reject" {
 			err = models.Db.RemoveGroupMemberById(request.MemberID)
 		} else {
@@ -261,11 +321,11 @@ func GroupEventsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Check if user is a member of the group
+		// Check if user is a member of the group (creator or approved member can create events)
 		status, err := models.Db.GetUserGroupStatus(request.GroupID, userID)
-		if err != nil || status == "" {
+		if err != nil || (status != "creator" && status != "approved") {
 			w.WriteHeader(http.StatusForbidden)
-			json.NewEncoder(w).Encode(map[string]string{"error": "You are not a member of this group"})
+			json.NewEncoder(w).Encode(map[string]string{"error": "You must be a member of this group to create events"})
 			return
 		}
 
@@ -351,6 +411,88 @@ func EventResponseHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusMethodNotAllowed)
+}
+
+// GroupInvitationResponseHandler handles accepting or rejecting group invitations
+func GroupInvitationResponseHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	userID, ok := r.Context().Value("userID").(int)
+	if !ok || userID == 0 {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	var request struct {
+		GroupID int    `json:"group_id"`
+		Action  string `json:"action"` // "accept" or "reject"
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Check if user has a pending invitation for this group
+	status, err := models.Db.GetUserGroupStatus(request.GroupID, userID)
+	if err != nil || status != "invited" {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]string{"error": "No pending invitation found for this group"})
+		return
+	}
+
+	if request.Action == "accept" {
+		// Get the member ID for this user in this group
+		memberID, err := models.Db.GetGroupMemberID(request.GroupID, userID)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to find group membership"})
+			return
+		}
+
+		// Update status to approved
+		err = models.Db.ApproveJoinRequest(memberID)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+			return
+		}
+
+		// Get group creator to notify about acceptance
+		creatorID, err := models.Db.GetGroupCreator(request.GroupID)
+		if err == nil {
+			// Create notification for invitation acceptance
+			notification := &models.Notification{
+				Type:       "group invitation accepted",
+				RelatedId:  memberID,
+				SenderId:   userID,
+				ReceiverId: creatorID,
+			}
+			models.Db.InsertNotification(notification)
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{"message": "Invitation accepted successfully"})
+		return
+	} else if request.Action == "reject" {
+		// Remove the invitation
+		err = models.Db.RemoveGroupMember(request.GroupID, userID)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{"message": "Invitation rejected successfully"})
+		return
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid action. Use 'accept' or 'reject'"})
+		return
+	}
 }
 
 // getting individual group details
