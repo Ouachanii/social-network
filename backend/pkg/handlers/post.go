@@ -44,7 +44,11 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 			imagePath = &imageFilePath
 		}
 	}
-
+	if content == "" && imagePath == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Post must have either content or an image"})
+		return
+	}
 	postID, err := models.Db.CreatePost(userID, content, privacy, imagePath, groupID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

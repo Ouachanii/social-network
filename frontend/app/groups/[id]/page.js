@@ -153,7 +153,11 @@ export default function GroupDetailPage() {
 
             if (response.ok) {
                 const data = await response.json();
-                setSearchResults(data.users || []);
+                // Filter out any users with missing data
+                const validUsers = (data.users || []).filter(user => 
+                    user && user.first_name && user.last_name
+                );
+                setSearchResults(validUsers);
             }
         } catch (error) {
             console.error('Error searching users:', error);
@@ -248,7 +252,7 @@ export default function GroupDetailPage() {
             return () => clearTimeout(timeoutId);
         }
     }, [searchQuery]);
-
+    console.log("users: ", searchResults.map(u => u.id));
     if (isLoading) {
         return (
             <div className={styles.container}>
@@ -474,8 +478,8 @@ export default function GroupDetailPage() {
                                     </button>
                                 </div>
                                 <div className={styles.usersList}>
-                                    {searchResults.map(user => (
-                                        <div key={user.id} className={styles.userItem}>
+                                    {searchResults.map((user, index) => (
+                                        <div key={`${index}-${user.first_name}-${user.last_name}`} className={styles.userItem}>
                                             <span>{user.first_name} {user.last_name}</span>
                                             <button
                                                 onClick={() => {
