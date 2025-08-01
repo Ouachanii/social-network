@@ -1,168 +1,128 @@
+/* Base Styles */
 .container {
-  display: grid;
-  grid-template-columns: 300px 1fr 300px;
-  gap: 20px;
-  max-width: 1920px;
-  margin: 0 auto;
-  padding: 20px;
+  --primary-blue: #3498db;
+  --light-blue: #e1f0fa;
+  --dark-blue: #2980b9;
+  --white: #ffffff;
+  --light-gray: #f5f7fa;
+  --medium-gray: #e2e8f0;
+  --dark-gray: #4a5568;
+  --text-color: #2d3748;
 }
 
+/* Header Styles */
 .header {
-  position: sticky;
-  top: 0;
-  color: white;
-  background: var(--cyan);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 8px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1rem 2rem;
+  background-color: var(--white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
   z-index: 100;
 }
 
-.leftSidebar {
-  position: sticky;
-  top: 70px;
-  height: calc(100vh - 70px);
-  overflow-y: auto;
-  padding: 20px;
+.header h1 {
+  color: var(--primary-blue);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
 }
 
-.mainContent {
-  max-width: 680px;
-  margin: 0 auto;
-  width: 100%;
+/* Main Container Layout */
+.container {
+  display: grid;
+  grid-template-columns: 240px 1fr 300px;
+  min-height: calc(100vh - 68px);
+  background-color: var(--light-gray);
+}
+
+/* Sidebar Styles */
+.leftSidebar, .rightSidebar {
+  padding: 1.5rem;
+  background-color: var(--white);
+  border-right: 1px solid var(--medium-gray);
 }
 
 .rightSidebar {
-  position: sticky;
-  top: 70px;
-  height: calc(100vh - 70px);
-  overflow-y: auto;
-  padding: 20px;
-}
-
-.post {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-  margin-bottom: 16px;
-  overflow: hidden;
-}
-
-.postHeader {
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.postUserAvatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #e4e6eb;
-}
-
-.postUserInfo {
-  flex: 1;
-}
-
-.postUsername {
-  font-weight: 600;
-  color: #050505;
-  margin: 0;
-}
-
-.postTimestamp {
-  font-size: 12px;
-  color: #65676B;
-  margin: 0;
-}
-
-.postContent {
-  padding: 0 12px 12px;
-}
-
-.postImage {
-  width: 100%;
-  max-height: 500px;
-  object-fit: cover;
-}
-
-.postActions {
-  display: flex;
-  padding: 4px 12px;
-  border-top: 1px solid #e4e6eb;
-}
-
-.actionButton {
-  flex: 1;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  border: none;
-  background: none;
-  color: #65676B;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.actionButton:hover {
-  background: #F2F2F2;
-}
-
-.group {
-  background: white;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-}
-
-.groupTitle {
-  margin: 0 0 8px;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.groupDescription {
-  margin: 0;
-  color: #65676B;
-  font-size: 14px;
+  border-right: none;
+  border-left: 1px solid var(--medium-gray);
 }
 
 .sidebarItem {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px;
-  border-radius: 8px;
-  cursor: pointer;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  color: var(--text-color);
   text-decoration: none;
-  color: #050505;
+  transition: background-color 0.2s;
 }
 
 .sidebarItem:hover {
-  background: #F2F2F2;
+  background-color: var(--light-blue);
 }
 
 .sidebarIcon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #e4e6eb;
+}
+
+/* Main Content Styles */
+.mainContent {
+  padding: 1.5rem;
+  background-color: var(--white);
 }
 
 .sectionTitle {
-  font-size: 17px;
+  font-size: 1.1rem;
   font-weight: 600;
-  margin-bottom: 12px;
-  color: #65676B;
+  color: var(--primary-blue);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--medium-gray);
+}
+
+/* Groups Styles */
+.group {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: var(--light-gray);
+  border-radius: 6px;
+  border: 1px solid var(--medium-gray);
+}
+
+.groupTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: var(--primary-blue);
+}
+
+.groupDescription {
+  font-size: 0.875rem;
+  margin: 0;
+  color: var(--dark-gray);
+}
+
+/* Logout Button */
+.logoutButton {
+  padding: 0.5rem 1rem;
+  background-color: var(--white);
+  color: var(--primary-blue);
+  border: 1px solid var(--primary-blue);
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logoutButton:hover {
+  background-color: var(--light-blue);
 }
