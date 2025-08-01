@@ -39,10 +39,13 @@ export default function ProfilePage() {
             headers: { 'Content-Type': 'application/json' }
           });
           
-          if (!testResponse.ok) {
+          if (!testResponse.ok) {    
+                
             throw new Error('Server is not responding');
           }
         } catch (error) {
+          console.log("ffff", error);
+          
           setError('Unable to connect to server. Please make sure the backend is running.');
           setIsLoading(false);
           return;
