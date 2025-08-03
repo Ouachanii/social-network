@@ -1,11 +1,16 @@
 package handlers
 
 import (
+	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"social-network/pkg/models"
 	"strings"
+
+	"github.com/gofrs/uuid"
 )
 
 // handle avatar image uploads
@@ -14,31 +19,71 @@ func UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
+
+	userID, ok := r.Context().Value("userID").(int)
+	if !ok || userID == 0 {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	file, header, err := r.FormFile("avatar")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Missing avatar file"))
+		http.Error(w, "Missing avatar file", http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
-	filename := header.Filename
-	ext := strings.ToLower(filepath.Ext(filename))
+
+	// Validate file size (e.g., 5MB limit)
+	if header.Size > 5*1024*1024 {
+		http.Error(w, "File size exceeds 5MB limit", http.StatusBadRequest)
+		return
+	}
+
+	ext := strings.ToLower(filepath.Ext(header.Filename))
 	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".gif" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Invalid file type"))
+		http.Error(w, "Invalid file type. Only JPG, PNG, and GIF are allowed.", http.StatusBadRequest)
 		return
 	}
-	outPath := filepath.Join("uploads/avatars", filename)
-	os.MkdirAll(filepath.Dir(outPath), 0o755)
-	out, err := os.Create(outPath)
+
+	// Generate a unique filename
+	newUUID, err := uuid.NewV4()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "Failed to generate unique filename", http.StatusInternalServerError)
 		return
 	}
-	defer out.Close()
-	io.Copy(out, file)
+	uniqueFilename := fmt.Sprintf("%s%s", newUUID, ext)
+	outPath := filepath.Join("uploads/avatars", uniqueFilename)
+
+	// Create the file
+	outFile, err := os.Create(outPath)
+	if err != nil {
+		http.Error(w, "Failed to save file", http.StatusInternalServerError)
+		return
+	}
+	defer outFile.Close()
+
+	// Copy the uploaded file's content to the new file
+	_, err = io.Copy(outFile, file)
+	if err != nil {
+		http.Error(w, "Failed to write file content", http.StatusInternalServerError)
+		return
+	}
+
+	// Update the user's avatar path in the database
+	err = models.Db.UpdateAvatar(userID, outPath)
+	if err != nil {
+		// Attempt to remove the newly created file if the DB update fails
+		os.Remove(outPath)
+		http.Error(w, "Failed to update user profile", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Avatar uploaded successfully"))
+	json.NewEncoder(w).Encode(map[string]string{
+		"message":  "Avatar uploaded successfully",
+		"filePath": outPath,
+	})
 }
 
 // handle post image uploads

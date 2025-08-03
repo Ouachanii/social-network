@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import styles from '../styles/create-post.module.css';
 
-export function CreatePost({ onPostCreated, groupId }) {
+export function CreatePost({ onPostCreated, groupId, avatarUrl }) {
   const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
   const [privacy, setPrivacy] = useState('public');
@@ -64,7 +64,7 @@ export function CreatePost({ onPostCreated, groupId }) {
         <div className={styles.userInput}>
           <div className={styles.avatar}>
             <img
-              src='/default-avatar.jpg'
+              src={avatarUrl || '/default-avatar.jpg'}
               alt={'User Avatar'}
               className={styles.authorAvatar}
               onError={(e) => {

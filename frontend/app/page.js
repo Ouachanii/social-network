@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "./context/UserContext";
 import { LogoutButton } from "./logout_button";
 import { CreatePost } from "./posts/create_post";
 import { PostFeed } from "./posts/PostFeed";
@@ -10,6 +11,7 @@ import styles from "./styles/home.module.css";
 
 export default function HomePage() {
   const [groups, setGroups] = useState([]);
+  const { user } = useUser();
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -52,7 +54,6 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    // Check if user is logged in
     const isLoggedIn = typeof window !== "undefined" && localStorage.getItem("isLoggedIn") === "true";
     if (!isLoggedIn) {
       router.replace("/login");
@@ -80,6 +81,10 @@ export default function HomePage() {
             <div className={styles.sidebarIcon}>👥</div>
             <span>Friends</span>
           </Link>
+          <Link href="/users" className={styles.sidebarItem}>
+            <div className={styles.sidebarIcon}>🌐</div>
+            <span>Users</span>
+          </Link>
           <Link href="/groups" className={styles.sidebarItem}>
             <div className={styles.sidebarIcon}>
               <img src="/group-avatar.png" className={styles.sidebarIcon}/>
@@ -94,7 +99,10 @@ export default function HomePage() {
 
         {/* Main Content */}
         <main className={styles.mainContent}>
-          <CreatePost onPostCreated={() => {}} />
+          <CreatePost 
+            onPostCreated={() => {}} 
+            avatarUrl={user && user.avatar ? `http://localhost:8080/${user.avatar}` : '/default-avatar.jpg'}
+          />
           <PostFeed />
         </main>
 

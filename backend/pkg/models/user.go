@@ -60,6 +60,24 @@ func (db *DB) GetUserByLogin(email string) (*User, error) {
 	return user, nil
 }
 
+func (db *DB) GetUserByID(userID int) (*User, error) {
+	user := &User{}
+	err := db.Db.QueryRow(`
+		SELECT id, nickname, first_name, last_name, email, date_of_birth, about_me, avatar, is_public 
+		FROM users WHERE id = ?`, userID).
+		Scan(&user.ID, &user.Nickname, &user.Firstname, &user.Lastname, &user.Email, &user.DateOfBirth, &user.AboutMe, &user.Avatar, &user.IsPublic)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("user not found")
+		}
+		fmt.Println(err)
+		return nil, errors.New("internal server error")
+	}
+
+	return user, nil
+}
+
 func (db *DB) CheckIsExistEmailInDB(email string) (int, error) {
 	var exists int
 	err := db.Db.QueryRow("SELECT 1 FROM users WHERE email = ? LIMIT 1", email).Scan(&exists)
@@ -134,4 +152,16 @@ func (db *DB) UpdatePrivacy(userID int) error {
 	}
 
 	return nil
+}
+
+// UpdateAvatar updates the user's avatar path in the database
+func (db *DB) UpdateAvatar(userID int, avatarPath string) error {
+	_, err := db.Db.Exec("UPDATE users SET avatar = ? WHERE id = ?", avatarPath, userID)
+	return err
+}
+
+// UpdateAboutMe updates the user's about_me text in the database
+func (db *DB) UpdateAboutMe(userID int, aboutMeText string) error {
+	_, err := db.Db.Exec("UPDATE users SET about_me = ? WHERE id = ?", aboutMeText, userID)
+	return err
 }

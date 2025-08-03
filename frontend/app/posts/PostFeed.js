@@ -33,10 +33,10 @@ export function formatDate(dateString) {
         return `${years}y`;
     };
 
-export function PostFeed({ groupId }) {
+export function PostFeed({ groupId, initialPosts }) {
     const router = useRouter();
-    const [posts, setPosts] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [posts, setPosts] = useState(initialPosts || []);
+    const [isLoading, setIsLoading] = useState(!initialPosts);
     const [error, setError] = useState(null);
     const [showComments, setShowComments] = useState({});
     const [offset, setOffset] = useState(0);
@@ -119,7 +119,7 @@ export function PostFeed({ groupId }) {
 
     // Infinite scroll handler
     const handleScroll = useCallback(() => {
-        if (isLoadingRef.current || !hasMore) return;
+        if (isLoadingRef.current || !hasMore || initialPosts) return; // Do not fetch more if posts are passed as a prop
 
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         const windowHeight = window.innerHeight;
@@ -132,8 +132,10 @@ export function PostFeed({ groupId }) {
     }, [hasMore, fetchPosts]);
 
     useEffect(() => {
-        fetchPosts();
-    }, [router]);
+        if (!initialPosts) {
+            fetchPosts();
+        }
+    }, [router, initialPosts]);
 
     useEffect(() => {
         window.addEventListener('scroll', handleScroll);
