@@ -54,12 +54,11 @@ export default function Login() {
 
   return (
     <main>
-      <h1 className={styles.title}>Welcome to our Social Network App!</h1>
+      <h1 className={styles.title}>Social Network</h1>
       <div className={styles.main_container}>
         <form className={styles.login} id="login_form" onSubmit={handleSubmit}>
           <div className={styles.header}>
-            <h1>Login</h1>
-            <h3>Please enter your information</h3>
+            <h1>Connect to Our Social Network</h1>
           </div>
 
           <div className={styles.body}>
@@ -69,7 +68,7 @@ export default function Login() {
                   id="login"
                   type="text"
                   name="login"
-                  placeholder="user-name/email."
+                  placeholder="user-name/email"
                   required
                   value={formInputs.login}
                   onChange={(e) =>
@@ -82,7 +81,7 @@ export default function Login() {
                   id="password"
                   type="password"
                   name="password"
-                  placeholder="password."
+                  placeholder="password"
                   required
                   value={formInputs.password}
                   onChange={(e) =>
@@ -92,7 +91,7 @@ export default function Login() {
               </div>
               <div className={styles.submit}>
                 <button className={styles.button1} type="submit">
-                  Login
+                  Log in
                 </button>
               </div>
             </div>

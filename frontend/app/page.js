@@ -65,7 +65,7 @@ export default function HomePage() {
   return (
     <div>
       <header className={styles.header}>
-        <h1>Social Network</h1>
+        <h1 className={styles.title}>Social Network</h1>
         <LogoutButton />
       </header>
       
