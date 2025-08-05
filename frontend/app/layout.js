@@ -1,21 +1,20 @@
 "use client";
 import "./styles/globals.css";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import Header from "./components/Header";
+import { UserProvider } from "./context/UserContext";
 
 export default function RootLayout({ children }) {
-  const router = useRouter();
-  useEffect(() => {
-    // Check if user is logged in (example: check localStorage/session)
-    const isLoggedIn = typeof window !== "undefined" && localStorage.getItem("isLoggedIn") === "true";
-    if (isLoggedIn && window.location.pathname === "/login") {
-      router.replace("/");
-    }
-  }, [router]);
+  const pathname = usePathname();
+  const showHeader = pathname !== "/login" && pathname !== "/register";
+
   return (
     <html lang="en">
       <body>
-        {children}
+        <UserProvider>
+          {showHeader && <Header />}
+          <main>{children}</main>
+        </UserProvider>
       </body>
     </html>
   );

@@ -19,7 +19,7 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:8080/api/login", {
+      const response = await fetch("/api/login", {
         method: "POST",
         body: JSON.stringify(formInputs),
         credentials: "include",
@@ -40,9 +40,24 @@ export default function Login() {
       } else {
         const result = await response.json();
         if (result.token) {
-          localStorage.setItem('token', result.token);
-          localStorage.setItem('isLoggedIn', 'true');
-          router.push("/");
+          // Decode the token to get the user ID
+          let userId = null;
+          try {
+            const payload = JSON.parse(atob(result.token.split('.')[1]));
+            userId = payload.id; // Assuming the payload has an 'id' field
+          } catch (e) {
+            console.error("Failed to decode token", e);
+            throw new Error("Invalid token received");
+          }
+
+          if (userId !== null) {
+            localStorage.setItem('token', result.token);
+            localStorage.setItem('userId', userId);
+            localStorage.setItem('isLoggedIn', 'true');
+            router.push("/"); // Redirect to home page
+          } else {
+            throw new Error("Could not extract userId from token");
+          }
         } else {
           throw new Error("No token received");
         }

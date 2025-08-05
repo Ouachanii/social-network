@@ -1,39 +1,29 @@
-"use client";
-import { useRouter } from "next/navigation";
-import styles from "@/app/styles/auth.module.css";
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { useUser } from './context/UserContext';
 
 export function LogoutButton() {
   const router = useRouter();
+  const { setUser } = useUser();
 
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch("http://localhost:8080/api/logout", {
-        method: "POST",
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await fetch('/api/logout', {
+        method: 'POST',
       });
 
       if (response.ok) {
         localStorage.removeItem('token');
-        localStorage.removeItem('isLoggedIn');
-        router.replace("/login");
+        setUser(null);
+        router.push('/login');
       } else {
-        console.error("Logout failed");
+        console.error('Logout failed');
       }
     } catch (error) {
-      console.error("Error during logout:", error);
+      console.error('Logout failed:', error);
     }
   };
 
-  return (
-    <button
-    className={styles.logout_button}
-    onClick={handleLogout}
-    >
-      Logout
-    </button>
-  );
+  return <button onClick={handleLogout}>Logout</button>;
 }

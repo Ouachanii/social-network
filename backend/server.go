@@ -21,6 +21,7 @@ func main() {
 	http.HandleFunc("/api/register", handlers.HandleCORS(handlers.Register))
 	http.HandleFunc("/api/login", handlers.HandleCORS(handlers.Login))
 	http.HandleFunc("/api/logout", handlers.HandleCORS(handlers.TokenMiddleware(handlers.Logout)))
+	http.HandleFunc("/api/user", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GetUser)))
 
 	http.HandleFunc("/api/privacy/update", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UpdatePrivacy)))
 	http.HandleFunc("/api/follow/{userID}", handlers.HandleCORS(handlers.TokenMiddleware(handlers.FollowUser))) // 1-need send notification func with ws | 2- need handling this cases: *when user follow himself  *when user follow a user already follower (follow the same follower 2 times)

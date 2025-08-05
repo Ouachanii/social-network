@@ -1,8 +1,10 @@
 "use client";
 import { useState } from 'react';
 import styles from '../styles/create-post.module.css';
+import { useUser } from '../context/UserContext';
 
 export function CreatePost({ onPostCreated, groupId }) {
+  const { user } = useUser();
   const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
   const [privacy, setPrivacy] = useState('public');
@@ -30,7 +32,7 @@ export function CreatePost({ onPostCreated, groupId }) {
         formData.append('image', image);
       }
 
-      const response = await fetch('http://localhost:8080/api/posts', {
+      const response = await fetch('/api/posts', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -64,11 +66,12 @@ export function CreatePost({ onPostCreated, groupId }) {
         <div className={styles.userInput}>
           <div className={styles.avatar}>
             <img
-              src='/default-avatar.jpg'
+              src={user && user.avatar ? `http://localhost:8080/uploads/avatars/${user.avatar}` : '/default-avatar.jpg'}
               alt={'User Avatar'}
               className={styles.authorAvatar}
               onError={(e) => {
-                console.log('Avatar image failed to load:', e.target.src);
+                e.target.onerror = null; 
+                e.target.src='/default-avatar.jpg';
               }}
             />
           </div>

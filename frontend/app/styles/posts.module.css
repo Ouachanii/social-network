@@ -1,7 +1,7 @@
 .post {
-  background: white;
+  background: var(--background-secondary);
   border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  border: 1px solid var(--border-color);
   margin-bottom: 16px;
   overflow: hidden;
 }
@@ -16,7 +16,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #e4e6eb;
+  background: var(--background-primary);
   margin-right: 12px;
   object-fit: cover;
 }
@@ -27,7 +27,7 @@
 
 .authorName {
   font-weight: 600;
-  color: #050505;
+  color: var(--text-primary);
   margin: 0;
   font-size: 15px;
 }
@@ -40,12 +40,12 @@
 }
 
 .timestamp {
-  color: #65676B;
+  color: var(--text-secondary);
   font-size: 13px;
 }
 
 .privacyIcon {
-  color: #65676B;
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
@@ -57,7 +57,7 @@
   margin: 0;
   font-size: 15px;
   line-height: 1.3333;
-  color: #050505;
+  color: var(--text-primary);
 }
 
 .postImage {
@@ -70,7 +70,7 @@
 .postActions {
   display: flex;
   padding: 4px 12px;
-  border-top: 1px solid #e4e6eb;
+  border-top: 1px solid var(--border-color);
 }
 
 .actionButton {
@@ -82,7 +82,7 @@
   padding: 12px;
   border: none;
   background: none;
-  color: #65676B;
+  color: var(--text-secondary);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -91,17 +91,17 @@
 }
 
 .actionButton:hover {
-  background: #f0f2f5;
+  background: var(--background-primary);
 }
 
 .actionButton.liked {
-  color: #1877f2;
-  background: #e7f3ff;
+  color: var(--accent-color);
+  background: rgba(187, 134, 252, 0.15);
 }
 
 .actionButton.disliked {
-  color: #e41e3f;
-  background: #ffe7e7;
+  color: var(--error-color);
+  background: rgba(207, 102, 121, 0.15);
 }
 
 .actionIcon {
@@ -114,8 +114,8 @@
 
 /* Comments Section */
 .commentsSection {
-  border-top: 1px solid #e4e6eb;
-  background: #f8f9fa;
+  border-top: 1px solid var(--border-color);
+  background: var(--background-primary);
 }
 
 .commentInput {
@@ -123,7 +123,7 @@
   flex-direction: column;
   gap: 8px;
   padding: 12px 16px;
-  border-top: 1px solid #e4e6eb;
+  border-top: 1px solid var(--border-color);
 }
 
 .commentInputRow {
@@ -135,17 +135,18 @@
 .commentInputField {
   flex: 1;
   padding: 8px 12px;
-  border: 1px solid #e4e6eb;
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   font-size: 15px;
-  background: #f0f2f5;
+  background: var(--background-secondary);
+  color: var(--text-primary);
   transition: background-color 0.2s ease;
 }
 
 .commentInputField:focus {
   outline: none;
-  background: white;
-  border-color: #1b74e4;
+  background: var(--background-secondary);
+  border-color: var(--accent-color);
 }
 
 .commentActions {
@@ -161,7 +162,7 @@
   width: 32px;
   height: 32px;
   border: none;
-  background: #f0f2f5;
+  background: var(--background-secondary);
   border-radius: 50%;
   cursor: pointer;
   font-size: 16px;
@@ -169,13 +170,13 @@
 }
 
 .imageUploadButton:hover {
-  background: #e4e6eb;
+  background: var(--border-color);
 }
 
 .commentSubmitButton {
   padding: 8px 16px;
-  background: #1b74e4;
-  color: white;
+  background: var(--accent-color);
+  color: var(--background-primary);
   border: none;
   border-radius: 6px;
   font-size: 14px;
@@ -185,11 +186,12 @@
 }
 
 .commentSubmitButton:hover:not(:disabled) {
-  background: #166fe5;
+  background: var(--accent-color-secondary);
 }
 
 .commentSubmitButton:disabled {
-  background: #e4e6eb;
+  background: var(--border-color);
+  color: var(--text-secondary);
   cursor: not-allowed;
 }
 
@@ -213,8 +215,8 @@
   width: 24px;
   height: 24px;
   border: none;
-  background: #dc3545;
-  color: white;
+  background: var(--error-color);
+  color: var(--background-primary);
   border-radius: 50%;
   cursor: pointer;
   font-size: 12px;
@@ -225,7 +227,7 @@
 }
 
 .removeImageButton:hover {
-  background: #c82333;
+  opacity: 0.8;
 }
 
 .commentsList {
@@ -247,7 +249,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #e4e6eb;
+  background: var(--background-primary);
   margin-right: 8px;
   object-fit: cover;
 }
@@ -260,12 +262,12 @@
 .commentAuthor {
   font-weight: 600;
   font-size: 13px;
-  color: #050505;
+  color: var(--text-primary);
 }
 
 .commentTime {
   font-size: 12px;
-  color: #65676B;
+  color: var(--text-secondary);
 }
 
 .commentContent {
@@ -276,7 +278,7 @@
   margin: 0;
   font-size: 14px;
   line-height: 1.4;
-  color: #050505;
+  color: var(--text-primary);
 }
 
 .commentImage {
@@ -289,7 +291,7 @@
 
 .noComments {
   text-align: center;
-  color: #65676B;
+  color: var(--text-secondary);
   font-size: 14px;
   font-style: italic;
   padding: 20px 0;
@@ -304,8 +306,9 @@
 .errorMessage {
   text-align: center;
   padding: 20px;
-  color: #d32f2f;
-  background: #ffebee;
+  color: var(--error-color);
+  background: rgba(207, 102, 121, 0.1);
+  border: 1px solid var(--error-color);
   border-radius: 8px;
   margin: 16px 0;
   position: relative;
@@ -317,7 +320,7 @@
   right: 8px;
   background: none;
   border: none;
-  color: #d32f2f;
+  color: var(--error-color);
   cursor: pointer;
   font-size: 16px;
   padding: 4px;
@@ -326,23 +329,23 @@
 }
 
 .errorCloseButton:hover {
-  background: rgba(211, 47, 47, 0.1);
+  background: rgba(207, 102, 121, 0.2);
 }
 
 .emptyMessage {
   text-align: center;
   padding: 40px 20px;
-  color: #65676B;
-  background: white;
+  color: var(--text-secondary);
+  background: var(--background-secondary);
   border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  border: 1px solid var(--border-color);
 }
 
 .retryButton {
   margin-top: 10px;
   padding: 8px 16px;
-  background: #1877f2;
-  color: white;
+  background: var(--accent-color);
+  color: var(--background-primary);
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -350,14 +353,14 @@
 }
 
 .retryButton:hover {
-  background: #166fe5;
+  background: var(--accent-color-secondary);
 }
 
 .spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid #1877f2;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--accent-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-right: 8px;
@@ -375,8 +378,8 @@
 }
 
 .loadMoreButton {
-  background: #1b74e4;
-  color: white;
+  background: var(--accent-color);
+  color: var(--background-primary);
   border: none;
   border-radius: 6px;
   padding: 12px 24px;
@@ -387,12 +390,12 @@
 }
 
 .loadMoreButton:hover:not(:disabled) {
-  background: #166fe5;
+  background: var(--accent-color-secondary);
 }
 
 .loadMoreButton:disabled {
-  background: #e4e6eb;
-  color: #BCC0C4;
+  background: var(--border-color);
+  color: var(--text-secondary);
   cursor: not-allowed;
 }
 
@@ -402,7 +405,7 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  color: #65676B;
+  color: var(--text-secondary);
   font-size: 14px;
   gap: 12px;
 }
@@ -410,8 +413,8 @@
 .loadingIndicator .spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid #e4e6eb;
-  border-top: 2px solid #1b74e4;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--accent-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

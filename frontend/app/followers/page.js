@@ -1,16 +1,25 @@
+"use client";
 import React, { useEffect, useState } from "react";
 
 export default function FollowersPage() {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    fetch("/api/users")
-      .then((res) => res.json())
-      .then((data) => setUsers(data.users));
+    // This endpoint doesn't seem to exist in server.go, this is placeholder logic
+    // fetch("/api/users")
+    //   .then((res) => res.json())
+    //   .then((data) => setUsers(data.users));
   }, []);
 
   const handleFollow = async (userId) => {
-    await fetch(`/api/follow/${userId}`, { method: "POST" });
+    // This endpoint requires an Authorization header
+    const token = localStorage.getItem('token');
+    await fetch(`/api/follow/${userId}`, { 
+      method: "POST",
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
+    });
     // Optionally refresh list
   };
 

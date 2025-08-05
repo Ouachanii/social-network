@@ -10,17 +10,17 @@ import (
 )
 
 type User struct {
-	ID          int
-	Nickname    string
-	Firstname   string
-	Lastname    string
-	Email       string
-	Password    string
-	DateOfBirth string
-	Gender      string
-	AboutMe     string
-	Avatar      *string
-	IsPublic    bool
+	ID          int     `json:"id"`
+	Nickname    string  `json:"nickname"`
+	Firstname   string  `json:"firstname"`
+	Lastname    string  `json:"lastname"`
+	Email       string  `json:"email"`
+	Password    string  `json:"password"`
+	DateOfBirth string  `json:"date_of_birth"`
+	Gender      string  `json:"gender"`
+	AboutMe     string  `json:"about_me"`
+	Avatar      *string `json:"avatar"`
+	IsPublic    bool    `json:"is_public"`
 }
 
 // Insert a new user into the database
@@ -46,8 +46,8 @@ func (db *DB) Insert(u User) (int, error) {
 
 func (db *DB) GetUserByLogin(email string) (*User, error) {
 	user := &User{}
-	err := db.Db.QueryRow(`SELECT id, password_hash,nickname FROM users WHERE email = ? OR nickName = ?`, email, email).
-		Scan(&user.ID, &user.Password, &user.Nickname)
+	err := db.Db.QueryRow(`SELECT id, email, password_hash, first_name, last_name, date_of_birth, avatar, nickname, about_me, is_public FROM users WHERE email = ? OR nickName = ?`, email, email).
+		Scan(&user.ID, &user.Email, &user.Password, &user.Firstname, &user.Lastname, &user.DateOfBirth, &user.Avatar, &user.Nickname, &user.AboutMe, &user.IsPublic)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -134,4 +134,13 @@ func (db *DB) UpdatePrivacy(userID int) error {
 	}
 
 	return nil
+}
+
+func GetUserByID(id int) (*User, error) {
+	var user User
+	err := Db.Db.QueryRow("SELECT id, email, password_hash, first_name, last_name, date_of_birth, avatar, nickname, about_me, is_public FROM users WHERE id = ?", id).Scan(&user.ID, &user.Email, &user.Password, &user.Firstname, &user.Lastname, &user.DateOfBirth, &user.Avatar, &user.Nickname, &user.AboutMe, &user.IsPublic)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
