@@ -11,6 +11,8 @@ const HomeIcon = () => <span>🏠</span>;
 const FriendsIcon = () => <span>👥</span>;
 const GroupsIcon = () => <span>👨‍👩‍👧‍👦</span>;
 const NotificationsIcon = () => <span>🔔</span>;
+const ChatIcon = () => <span>💬</span>;
+
 const DefaultAvatar = ({ className }) => <div className={`${styles.defaultAvatar} ${className || ''}`}></div>;
 
 const Header = () => {
@@ -62,6 +64,9 @@ const Header = () => {
         </Link>
         <Link href="/groups" className={styles.navLink} title="Groups">
           <GroupsIcon />
+        </Link>
+         <Link href="/chat" className={styles.navLink} title="chat">
+          <ChatIcon />
         </Link>
       </nav>
 
