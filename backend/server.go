@@ -33,7 +33,7 @@ func main() {
 	http.HandleFunc("/api/upload/post-image", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UploadPostImage)))
 
 	hub := handlers.NewHub()
-
+	go hub.Run()
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		handlers.HandleWebSocket(hub, w, r)
 	})
