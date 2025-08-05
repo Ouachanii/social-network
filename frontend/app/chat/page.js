@@ -1,3 +1,108 @@
+"use client";
+// import PostCard from "./PostCard";
+import { useState } from "react";
+// import { Send, User } from "lucide-react";
+import "../styles/chat.css"; // Assuming you have a CSS file for styling
+
+const ChatPage = () => {
+  const [messages, setMessages] = useState([
+    { id: 1, text: "Hey! How's everyone doing today?", sender: "Alice", time: "2:30 PM", isOwn: false },
+    { id: 2, text: "Great! Just finished working on a new project", sender: "You", time: "2:32 PM", isOwn: true },
+    { id: 3, text: "That sounds awesome! What kind of project?", sender: "Bob", time: "2:33 PM", isOwn: false },
+    { id: 4, text: "A social networking app with real-time chat!", sender: "You", time: "2:35 PM", isOwn: true },
+  ]);
+  const [input, setInput] = useState("");
+
+  const sendMessage = () => {
+    if (input.trim()) {
+      const newMessage = {
+        id: messages.length + 1,
+        text: input,
+        sender: "You",
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isOwn: true
+      };
+      setMessages([...messages, newMessage]);
+      setInput("");
+    }
+  };
+
+  // const handleKeyPress = (e: React.KeyboardEvent) => {
+  //   if (e.key === 'Enter') {
+  //     sendMessage();
+  //   }
+  // };
+  return (
+    <div className="chat-container">
+      <div className="chat-header">
+        <h2 className="chat-title">General Chat</h2>
+        <p className="chat-subtitle">4 members online</p>
+      </div>
+
+      <div className="chat-messages">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`chat-message ${msg.isOwn ? 'own' : 'other'}`}
+          >
+            <div className="chat-message-content">
+              <div className="chat-message-bubble">
+                {!msg.isOwn && (
+                  <p className="chat-message-sender">{msg.sender}</p>
+                )}
+                <p>{msg.text}</p>
+              </div>
+              <p className="chat-message-time">
+                {msg.time}
+              </p>
+            </div>
+            <div className="chat-message-avatar">
+              {/* <User className="chat-message-avatar-icon" /> */}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="chat-input-container">
+        <div className="chat-input-form">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            // onKeyPress={handleKeyPress}
+            placeholder="Type a message..."
+            className="chat-input"
+          />
+          <button
+            onClick={sendMessage}
+            className="chat-send-button"
+          >
+            {/* <Send className="chat-send-icon" /> */}
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+
+
+  );
+};
+export default ChatPage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // import React, { useEffect, useRef, useState } from "react";
 
 // export default function ChatPage() {
@@ -31,81 +136,3 @@
 //     </div>
 //   );
 // }
-
-import PostCard from "./PostCard";
-import styles from "./chat.module.css";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Image, Video, Smile } from "lucide-react";
-import { useState } from "react";
-
-const ChatPage = () => {
-  const [posts] = useState([
-    {
-      id: 1,
-      author: "Sarah Johnson",
-      content: "Just launched my new portfolio website! Excited to share my latest design work with everyone. The journey of becoming a UI/UX designer has been incredible so far 🎨",
-      timestamp: "2 hours ago",
-      likes: 24,
-      comments: 8
-    },
-    {
-      id: 2,
-      author: "Mike Chen",
-      content: "Beautiful sunset from my morning run today. There's something magical about starting the day with nature's artwork. Hope everyone has an amazing day ahead!",
-      timestamp: "4 hours ago",
-      likes: 42,
-      comments: 12
-    },
-    {
-      id: 3,
-      author: "Emily Rodriguez",
-      content: "Team meeting went great today! We're making excellent progress on the new app features. Collaboration really makes the dream work 💪",
-      timestamp: "6 hours ago",
-      likes: 18,
-      comments: 5
-    }
-  ]);
-
-  return (
-    <div className={styles.feedContainer}>
-      {/* Create Post */}
-      <Card className={styles.createPostCard}>
-        <div className={styles.createPostContent}>
-          <Textarea
-            placeholder="What's on your mind?"
-            className={styles.createPostTextarea}
-            rows={3}
-          />
-          <div className={styles.createPostActions}>
-            <div className={styles.createPostButtons}>
-              <Button variant="ghost" size="sm" className={styles.postActionButton}>
-                <Image className={styles.icon} />
-                Photo
-              </Button>
-              <Button variant="ghost" size="sm" className={styles.postActionButton}>
-                <Video className={styles.icon} />
-                Video
-              </Button>
-              <Button variant="ghost" size="sm" className={styles.postActionButton}>
-                <Smile className={styles.icon} />
-                Feeling
-              </Button>
-            </div>
-            <Button className={styles.shareButton}>
-              Share
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      {/* Posts Feed */}
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
-    </div>
-  );
-};
-
-export default ChatPage;
