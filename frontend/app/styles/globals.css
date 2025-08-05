@@ -8,13 +8,32 @@
 }
 
 :root {
-  --cyan: #3b8fb9;
-  --white: #fdfefe;
-  --orange: #dd3a2c;
+  /* Dark Theme (Default) */
+  --background-primary: #121212;
+  --background-secondary: #1e1e1e;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b3b3b3;
+  --accent-color: #bb86fc;
+  --accent-color-secondary: #03dac6;
+  --error-color: #cf6679;
+  --border-color: #2c2c2c;
+}
+
+body[data-theme='light'] {
+  /* Light Theme */
+  --background-primary: #fdfefe;
+  --background-secondary: #f0f2f5;
+  --text-primary: #1c1e21;
+  --text-secondary: #606770;
+  --accent-color: #001868;
+  --accent-color-secondary: #dd3a2c;
+  --error-color: #dd3a2c;
+  --border-color: #dddfe2;
 }
 
 body {
-  background-color: var(--white);
+  background-color: var(--background-primary);
+  color: var(--text-primary);
   font-family: "Roboto", sans-serif;
   height: 100%;
   width: 100%;

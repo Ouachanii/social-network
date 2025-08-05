@@ -1,4 +1,4 @@
-"use client"; // important! because we will use interactivity
+"use client";
 import styles from "@/app/styles/auth.module.css";
 import { LinkButton } from "../link_button";
 import { useState } from "react";
@@ -19,7 +19,7 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:8080/api/login", {
+      const response = await fetch("/api/login", {
         method: "POST",
         body: JSON.stringify(formInputs),
         credentials: "include",
@@ -40,9 +40,24 @@ export default function Login() {
       } else {
         const result = await response.json();
         if (result.token) {
-          localStorage.setItem('token', result.token);
-          localStorage.setItem('isLoggedIn', 'true');
-          router.push("/");
+          // Decode the token to get the user ID
+          let userId = null;
+          try {
+            const payload = JSON.parse(atob(result.token.split('.')[1]));
+            userId = payload.id; // Assuming the payload has an 'id' field
+          } catch (e) {
+            console.error("Failed to decode token", e);
+            throw new Error("Invalid token received");
+          }
+
+          if (userId !== null) {
+            localStorage.setItem('token', result.token);
+            localStorage.setItem('userId', userId);
+            localStorage.setItem('isLoggedIn', 'true');
+            router.push("/"); // Redirect to home page
+          } else {
+            throw new Error("Could not extract userId from token");
+          }
         } else {
           throw new Error("No token received");
         }
@@ -54,12 +69,11 @@ export default function Login() {
 
   return (
     <main>
-      <h1 className={styles.title}>Welcome to our Social Network App!</h1>
+      <h1 className={styles.title}>Social Network</h1>
       <div className={styles.main_container}>
         <form className={styles.login} id="login_form" onSubmit={handleSubmit}>
           <div className={styles.header}>
-            <h1>Login</h1>
-            <h3>Please enter your information</h3>
+            <h1>Connect to Our Social Network</h1>
           </div>
 
           <div className={styles.body}>
@@ -69,7 +83,7 @@ export default function Login() {
                   id="login"
                   type="text"
                   name="login"
-                  placeholder="user-name/email."
+                  placeholder="user-name/email"
                   required
                   value={formInputs.login}
                   onChange={(e) =>
@@ -82,7 +96,7 @@ export default function Login() {
                   id="password"
                   type="password"
                   name="password"
-                  placeholder="password."
+                  placeholder="password"
                   required
                   value={formInputs.password}
                   onChange={(e) =>
@@ -92,7 +106,7 @@ export default function Login() {
               </div>
               <div className={styles.submit}>
                 <button className={styles.button1} type="submit">
-                  Submit
+                  Log in
                 </button>
               </div>
             </div>
@@ -109,38 +123,3 @@ export default function Login() {
     </main>
   );
 }
-
-// export default function page() {
-//     return (
-//         <main>
-//             <div className={styles.main_container}>
-//                 <form className={styles.login} id="login_form" method="post">
-//                     <div className={styles.header}>
-//                         <h1>Login</h1>
-//                         <h3>please enter your informations</h3>
-//                     </div>
-
-//                     <div className={styles.body}>
-//                         <div className={styles.container}>
-//                             <div className={styles.login}>
-//                                 <input id="login" type="text" name="login" placeholder="user-name/email." required></input>
-//                             </div>
-//                             <div className={styles.password}>
-//                                 <input id="password" type="password" name="password" placeholder="password." required></input>
-//                             </div>
-//                             <div className={styles.submit}>
-//                                 <button className={styles.button1} id="submit_form">submit</button>
-//                             </div>
-//                         </div>
-//                     </div>
-
-//                     <div className={styles.footer}>
-//                         <div className={styles.container}>
-//                             <button className={styles.button2}>Create new account</button>
-//                         </div>
-//                     </div>
-//                 </form>
-//             </div>
-//         </main>
-//     )
-// }

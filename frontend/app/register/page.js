@@ -48,6 +48,7 @@ export default function Register() {
         if (response.status == 400) {
           setErrMessage(result.error_message);
         } else {
+          alert(response.status)
           alert(result.error_message);
         }
       } else {
@@ -66,7 +67,7 @@ export default function Register() {
 
   return (
     <main>
-      <h1 className={styles.title}>Welcome to our Social Network App!</h1>
+      <h1 className={styles.title}>Social Network</h1>
       <div className={styles.main_container}>
         <form
           className={styles.register}
@@ -74,8 +75,7 @@ export default function Register() {
           onSubmit={handleSubmit}
         >
           <div className={styles.header}>
-            <h1>Register</h1>
-            <h3>Please enter your information</h3>
+            <h1>Create an account</h1>
           </div>
 
           <div className={styles.body}>
@@ -108,8 +108,7 @@ export default function Register() {
                 <input
                   type="text"
                   name="nickName"
-                  placeholder="Nick Name"
-                  required
+                  placeholder="Nick Name (Optional)"
                   value={formInputs.nickName}
                   onChange={(e) =>
                     setFormInputs({ ...formInputs, nickName: e.target.value })
@@ -144,6 +143,9 @@ export default function Register() {
                 </select>
               </div>
               <div className={styles.birthDate}>
+                <label htmlFor="birthDate" className={styles.label}>
+                  Birth Date
+                </label>
                 <input
                   type="date"
                   name="birthDate"
@@ -168,10 +170,14 @@ export default function Register() {
                 />
               </div>
               <div className={styles.avatar}>
+                <label htmlFor="file" className={styles.label}>
+                  Upload Avatar/Image (Optional)
+                </label>
                 <input
                   id="file"
                   type="file"
                   name="avatar"
+                  className={styles.fileInput}
                   accept="image/*"
                   onChange={handleAvatarChange}
                 />
@@ -179,7 +185,7 @@ export default function Register() {
               <div className={styles.aboutMe}>
                 <textarea
                   name="aboutMe"
-                  placeholder="Tell us about yourself"
+                  placeholder="About Me (Optional)"
                   value={formInputs.aboutMe}
                   onChange={(e) =>
                     setFormInputs({ ...formInputs, aboutMe: e.target.value })
@@ -201,7 +207,7 @@ export default function Register() {
 
           <div className={styles.footer}>
             <div className={styles.container}>
-              <LinkButton Link="/login" TextContent="Go to Login" />
+              <LinkButton Link="/login" TextContent="Already have an account?" />
               <ErrorFormMessage Message={errMessage} />
             </div>
           </div>

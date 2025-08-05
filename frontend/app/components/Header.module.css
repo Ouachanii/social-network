@@ -1,0 +1,148 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  height: 56px;
+  background-color: var(--background-secondary);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.leftSection {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  color: var(--accent-color);
+  font-size: 1.7rem;
+  font-weight: bold;
+  text-decoration: none;
+  font-family: 'Play', sans-serif;
+}
+
+.navSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  height: 100%;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 32px;
+  color: var(--text-secondary);
+  border-bottom: 3px solid transparent;
+  transition: color 0.2s, border-bottom-color 0.2s;
+}
+
+.navLink:hover {
+  background-color: var(--background-primary);
+  color: var(--accent-color);
+}
+
+.navLink.active {
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconWrapper, .profileWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: var(--background-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.defaultAvatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  /* In a real app, this would be an <img> tag */
+}
+
+.profileAvatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.dropdownAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
+}
+
+.profileLink {
+  display: flex;
+  align-items: center;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background-color: var(--background-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  width: 280px;
+  overflow: hidden;
+  z-index: 1001;
+}
+
+.dropdownHeader {
+  padding: 12px 16px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dropdownItem {
+  padding: 12px 16px;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: block;
+  text-decoration: none;
+}
+
+.dropdownItem:hover {
+  background-color: var(--background-primary);
+}
+
+.dropdownSeeAll {
+  display: block;
+  text-align: center;
+  padding: 12px 16px;
+  color: var(--accent-color);
+  font-weight: 600;
+  text-decoration: none;
+  border-top: 1px solid var(--border-color);
+}
+
+.dropdownSeeAll:hover {
+  background-color: var(--background-primary);
+}

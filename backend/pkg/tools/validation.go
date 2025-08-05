@@ -12,7 +12,7 @@ import (
 )
 
 func ValidateRegisterForum(firstName, lastName, email, password, date, nickName, gender string) (int, error) {
-	if firstName == "" || lastName == "" || email == "" || password == "" || date == "" || nickName == "" {
+	if firstName == "" || lastName == "" || email == "" || password == "" || date == ""{
 		return http.StatusBadRequest, errors.New("please fill all required fileds")
 	}
 	if !IsValidName(firstName) || !IsValidName(lastName) {
@@ -43,7 +43,6 @@ func ValidateRegisterForum(firstName, lastName, email, password, date, nickName,
 	}
 
 	statusCode, err = CheckIsValidNickName(nickName)
-	fmt.Println("nickName :", nickName)
 	if err != nil {
 		return statusCode, err
 	}
@@ -92,8 +91,8 @@ func IsValidDateOfBirth(dateStr string) bool {
 }
 
 func CheckIsValidNickName(nickName string) (int, error) {
-	isValid, _ := regexp.MatchString(`^[a-zA-Z][a-zA-Z0-9_]{2,19}$`, nickName)
-	if !isValid {
+	isValid, _ := regexp.MatchString(`^[a-zA-Z][a-zA-Z0-9_]{2,19}$`, nickName) 
+	if !isValid && strings.TrimSpace(nickName) != "" {
 		return http.StatusBadRequest, errors.New("your nickName must: Be 3 to 20 characters long, Start with a letter, Contain only letters, numbers, underscores (_),Not end with an underscore")
 	}
 

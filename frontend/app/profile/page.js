@@ -32,23 +32,7 @@ export default function ProfilePage() {
           return;
         }
 
-        try {
-          // Test if server is available first
-          const testResponse = await fetch("http://localhost:8080/health", {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-          });
-          
-          if (!testResponse.ok) {
-            throw new Error('Server is not responding');
-          }
-        } catch (error) {
-          setError('Unable to connect to server. Please make sure the backend is running.');
-          setIsLoading(false);
-          return;
-        }
-
-        const response = await fetch("http://localhost:8080/api/profile", {
+        const response = await fetch("/api/profile", {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -73,6 +57,8 @@ export default function ProfilePage() {
         }
 
         setProfile(data.profile);
+        // Dispatch a global event with the user data
+        window.dispatchEvent(new CustomEvent('userLoaded', { detail: data.profile }));
         setPosts(data.posts || []);
         setFollowers(data.followers || []);
         setFollowing(data.following || []);
@@ -98,7 +84,7 @@ export default function ProfilePage() {
       }
 
       const newPrivacy = privacy === "public" ? "private" : "public";
-      const response = await fetch("http://localhost:8080/api/privacy/update", {
+      const response = await fetch("/api/privacy/update", {
         method: "POST",
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -177,7 +163,7 @@ export default function ProfilePage() {
       <div className={styles.profileHeader}>
         <div className={styles.avatarSection}>
           <img 
-            src={profile.avatarUrl || '/default-avatar.png'} 
+            src={profile.avatarUrl || '/default-avatar.jpg'} 
             alt="Profile" 
             className={styles.avatar}
           />

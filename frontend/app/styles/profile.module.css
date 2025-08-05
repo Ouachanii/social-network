@@ -7,7 +7,7 @@
 .coverPhoto {
   height: 350px;
   width: 100%;
-  background: #f0f2f5;
+  background: var(--background-secondary);
   border-radius: 8px;
   margin-bottom: -90px;
   position: relative;
@@ -28,8 +28,8 @@
   width: 168px;
   height: 168px;
   border-radius: 50%;
-  border: 6px solid white;
-  background: #e4e6eb;
+  border: 6px solid var(--background-secondary);
+  background: var(--border-color);
   margin-right: 16px;
 }
 
@@ -42,11 +42,11 @@
   font-size: 32px;
   font-weight: bold;
   margin: 0;
-  color: #050505;
+  color: var(--text-primary);
 }
 
 .stats {
-  color: #65676B;
+  color: var(--text-secondary);
   font-size: 15px;
   margin-top: 4px;
 }
@@ -58,8 +58,8 @@
 }
 
 .primaryButton {
-  background: #1b74e4;
-  color: white;
+  background: var(--accent-color);
+  color: var(--background-primary);
   border: none;
   padding: 8px 12px;
   border-radius: 6px;
@@ -68,9 +68,9 @@
 }
 
 .secondaryButton {
-  background: #e4e6eb;
-  color: #050505;
-  border: none;
+  background: var(--background-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   padding: 8px 12px;
   border-radius: 6px;
   font-weight: 600;
@@ -79,42 +79,42 @@
 
 .navigation {
   display: flex;
-  border-top: 1px solid #e4e6eb;
+  border-top: 1px solid var(--border-color);
   padding: 0 32px;
 }
 
 .navItem {
   padding: 16px;
-  color: #65676B;
+  color: var(--text-secondary);
   font-weight: 600;
   cursor: pointer;
   border-bottom: 3px solid transparent;
 }
 
 .navItem.active {
-  color: #1b74e4;
-  border-bottom-color: #1b74e4;
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
 }
 
 .content {
   padding: 16px 32px;
-  background: #f0f2f5;
+  background: var(--background-primary);
   min-height: 400px;
 }
 
 .section {
-  background: white;
+  background: var(--background-secondary);
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 16px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  border: 1px solid var(--border-color);
 }
 
 .sectionTitle {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #050505;
+  color: var(--text-primary);
 }
 
 .infoGrid {
@@ -127,7 +127,7 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  color: #050505;
+  color: var(--text-primary);
 }
 
 .infoLabel {
@@ -148,16 +148,16 @@
   padding: 8px;
   border-radius: 8px;
   margin-bottom: 8px;
-  background: #f0f2f5;
+  background: var(--background-primary);
 }
 
 .friendItem:hover {
-  background: #e4e6eb;
+  background: var(--border-color);
 }
 
 .post {
   padding: 16px;
-  border-bottom: 1px solid #e4e6eb;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .post:last-child {
@@ -167,8 +167,8 @@
 .message {
   padding: 8px 16px;
   border-radius: 8px;
-  background: #e3f2fd;
-  color: #1b74e4;
+  background: rgba(187, 134, 252, 0.2);
+  color: var(--accent-color);
   margin-bottom: 16px;
   animation: fadeOut 3s forwards;
 }
@@ -182,18 +182,18 @@
   min-height: 60vh;
   padding: 2rem;
   text-align: center;
-  background: white;
+  background: var(--background-secondary);
   border-radius: 8px;
   margin: 2rem auto;
   max-width: 500px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  border: 1px solid var(--border-color);
 }
 
 .loadingSpinner {
   width: 50px;
   height: 50px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #1b74e4;
+  border: 4px solid var(--border-color);
+  border-top: 4px solid var(--accent-color);
   border-radius: 50%;
   margin-bottom: 1rem;
   animation: spin 1s linear infinite;
@@ -205,12 +205,12 @@
 }
 
 .errorContainer h2 {
-  color: #1c1e21;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .errorContainer p {
-  color: #65676B;
+  color: var(--text-secondary);
   margin-bottom: 1.5rem;
 }
 

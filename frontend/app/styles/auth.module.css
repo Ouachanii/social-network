@@ -1,133 +1,201 @@
 main .main_container {
+    background-color: var(--background-primary);
     display: flex;
     justify-content: center;
-    justify-items: center;
     align-items: center;
-    flex-direction: column;
-    min-height: 80vh;
+    min-height: 90vh;
     width: 100%;
+}
+
+.title {
+    background-color: var(--background-primary);
+    text-align: center;
+    color: var(--accent-color);
+    font-size: 2rem;
+    font-weight: 500;
+    padding-top: 30px;
 }
 
 form.login, form.register {
     width: 400px;
-    background-color: var(--cyan);
-    /* border: 2px solid var(--orange); */
-    box-shadow: var(--cyan) 0px 7px 29px 0px;
-    border-radius: 15px;
-    padding: 40px 20px;
+    background-color: var(--background-secondary);
+    border-radius: 8px;
+    padding: 40px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
-.title {
-    display: block;
-    background-color: var(--cyan);
-    text-align: center;
-    padding-bottom: 50px;
-    padding-top: 30px;
-    color: white;
-    width: auto;
-}
+
 form .header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 35px;
+    margin-bottom: 30px;
+    text-align: center;
 }
 
 form .header h1 {
-    color: var(--orange);
-    font-size: 55px;
-    font-family: "Lavishly Yours", cursive;
-    text-transform: capitalize;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    font-weight: 300;
+    margin-bottom: 5px;
 }
 
 form .header h3 {
-    color: var(--white);
-    align-self: end;
-    font-size: 13px;
-    position: relative;
-    left: -42px;
-    font-style: italic;
-    text-transform: capitalize;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 400;
 }
 
 form .body {
-    padding: 7px 5px;
+    margin-bottom: 20px;
 }
 
 form .body .container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
 }
 
-form .body input, .body select {
+form .body input, 
+form .body select, 
+form .body textarea {
     width: 100%;
-    height: 30px;
-    padding: 0 5px;
-    background-color: transparent;
-    border: 2px solid white;
-    border-radius: 10px;
-    color:white;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--background-primary);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
 }
 
-.body textarea {
-    width: 100%;
-    /* height: 30px; */
-    padding: 0 5px;
-    background-color: var(--cyan);
-    border: 2px solid white;
-    border-radius: 10px;
-    color: white;
+form .body input:focus, 
+form .body select:focus, 
+form .body textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px var(--accent-color-secondary);
 }
 
-.body input::placeholder{
-    color:white;
-    font-size: 10px;
-    text-transform: capitalize;
+form .body input::placeholder {
+    color: var(--text-secondary);
+}
+
+form .body textarea {
+    min-height: 80px;
+    resize: vertical;
 }
 
 form .body .submit {
-    margin: 0 auto;
-    margin-top: 10px;
+    margin-top: 20px;
 }
-
-form .footer{
-    margin-top: 25px;
+.label {
     display: flex;
-    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 0.7rem;
 }
-
 .button1 {
-  padding: 5px 15px;
-  font-size: 1rem;
-  background: transparent;
-  outline: none;
-  border: 3px solid white;
-  border-radius: 10px;
-  font-weight: 600;
-  text-transform: capitalize;
-  color: white;
-  transition: .7s ease-in-out;
+    width: 100%;
+    padding: 12px;
+    background-color: var(--accent-color);
+    color: var(--background-primary);
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-.button1:hover{
-  background-color: var(--orange);
-  border-color: var(--orange);
+.button1:hover {
+    background-color: var(--accent-color-secondary);
 }
 
+.button1:disabled {
+    background-color: var(--text-secondary);
+    cursor: not-allowed;
+}
+
+/* Link Button Styles */
 .button2 {
-  padding: 5px 15px;
-  font-size: 1rem;
-  background: var(--orange);
-  outline: none;
-  border: 3px solid var(--orange);
-  border-radius: 10px;
-  font-weight: 600;
-  text-transform: capitalize;
-  color: var(--white);
+    width: 100%;
+    padding: 10px;
+    background-color: transparent;
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+    text-align: center;
+    display: block;
+}
+
+.button2:hover {
+    background-color: var(--background-secondary);
+    border-color: var(--accent-color-secondary);
+    color: var(--accent-color-secondary);
+}
+
+/* Error Message Styles */
+/* Footer Container for these elements */
+form .footer .container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+form .footer {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
 }
 
 .error_section p {
-    color: var(--orange);
-    text-align: center;
-    display: block;
+    color: var(--error-color);
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+/* File input styling */
+.avatar input[type="file"] {
+    padding: 8px;
+    border: 1px dashed var(--border-color);
+    border-radius: 6px;
+    background-color: var(--background-primary);
+}
+
+.avatar input[type="file"]::file-selector-button {
+    padding: 6px 12px;
+    background-color: var(--background-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.avatar input[type="file"]::file-selector-button:hover {
+    background-color: var(--border-color);
+}
+
+.logout_button {
+    width: auto;
+    padding: 5px;
+    background-color: var(--background-secondary);
+    color: var(--error-color);
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.logout_button:hover {
+    background-color: var(--background-primary);
+    border: 1px solid var(--error-color);
+    color: var(--error-color);
 }

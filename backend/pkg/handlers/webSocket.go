@@ -62,6 +62,6 @@ func HandleWebSocket(h *Hub,w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			break
 		}
-		h.broadcast(msg)
+		conn.WriteMessage(websocket.TextMessage, msg)
 	}
 }

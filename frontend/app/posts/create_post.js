@@ -1,8 +1,10 @@
 "use client";
 import { useState } from 'react';
 import styles from '../styles/create-post.module.css';
+import { useUser } from '../context/UserContext';
 
-export function CreatePost({ onPostCreated }) {
+export function CreatePost({ onPostCreated, groupId }) {
+  const { user } = useUser();
   const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
   const [privacy, setPrivacy] = useState('public');
@@ -23,11 +25,14 @@ export function CreatePost({ onPostCreated }) {
       const formData = new FormData();
       formData.append('content', content);
       formData.append('privacy', privacy);
+      if (groupId) {
+        formData.append('group_id', groupId);
+      }
       if (image) {
         formData.append('image', image);
       }
 
-      const response = await fetch('http://localhost:8080/api/posts', {
+      const response = await fetch('/api/posts', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -40,12 +45,11 @@ export function CreatePost({ onPostCreated }) {
         throw new Error(data.error || 'Failed to create post');
       }
 
-      // Clear form
+      // clear the form
       setContent('');
       setImage(null);
       setPrivacy('public');
       
-      // Notify parent component
       if (onPostCreated) {
         onPostCreated();
       }
@@ -60,12 +64,21 @@ export function CreatePost({ onPostCreated }) {
     <div className={styles.createPost}>
       <form onSubmit={handleSubmit}>
         <div className={styles.userInput}>
-          <div className={styles.avatar}></div>
+          <div className={styles.avatar}>
+            <img
+              src={user && user.avatar ? `http://localhost:8080/uploads/avatars/${user.avatar}` : '/default-avatar.jpg'}
+              alt={'User Avatar'}
+              className={styles.authorAvatar}
+              onError={(e) => {
+                e.target.onerror = null; 
+                e.target.src='/default-avatar.jpg';
+              }}
+            />
+          </div>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="What's on your mind?"
-            required
             className={styles.textarea}
           />
         </div>
@@ -123,7 +136,7 @@ export function CreatePost({ onPostCreated }) {
 
           <button
             type="submit"
-            disabled={isLoading || !content.trim()}
+            disabled={isLoading}
             className={styles.postButton}
           >
             {isLoading ? 'Posting...' : 'Post'}
