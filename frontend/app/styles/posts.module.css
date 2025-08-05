@@ -13,10 +13,13 @@
 }
 
 .authorAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--background-primary);
+  background-color: var(--background-primary);
   margin-right: 12px;
   object-fit: cover;
 }

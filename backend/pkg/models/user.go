@@ -10,17 +10,17 @@ import (
 )
 
 type User struct {
-	ID          int     `json:"id"`
-	Nickname    string  `json:"nickname"`
-	Firstname   string  `json:"firstname"`
-	Lastname    string  `json:"lastname"`
-	Email       string  `json:"email"`
-	Password    string  `json:"password"`
-	DateOfBirth string  `json:"date_of_birth"`
-	Gender      string  `json:"gender"`
-	AboutMe     string  `json:"about_me"`
-	Avatar      *string `json:"avatar"`
-	IsPublic    bool    `json:"is_public"`
+	ID          int            `json:"id"`
+	Nickname    sql.NullString `json:"nickname"`
+	Firstname   string         `json:"firstname"`
+	Lastname    string         `json:"lastname"`
+	Email       string         `json:"email"`
+	Password    string         `json:"password"`
+	DateOfBirth string         `json:"date_of_birth"`
+	Gender      string         `json:"gender"`
+	AboutMe     string         `json:"about_me"`
+	Avatar      *string        `json:"avatar"`
+	IsPublic    bool           `json:"is_public"`
 }
 
 // Insert a new user into the database
@@ -29,15 +29,19 @@ func (db *DB) Insert(u User) (int, error) {
 	if err != nil {
 		return 0, errors.New("failed to hash password")
 	}
-
 	var id int
+	var nickname interface{}
+	if u.Nickname.String == "" {
+		nickname = nil // for skip "UNIQUE constraint failed: users.nickname" error
+	} else {
+		nickname = u.Nickname
+	}
 	err = db.Db.QueryRow(`
 		INSERT INTO users 
 		(nickname, date_of_birth, about_me, first_name, last_name, email, gender, password_hash, avatar) 
 		VALUES (?,?,?,?,?,?,?,?,?) RETURNING id`,
-		u.Nickname, u.DateOfBirth, u.AboutMe, u.Firstname, u.Lastname, u.Email, u.Gender, hashedPass, u.Avatar,
+		nickname, u.DateOfBirth, u.AboutMe, u.Firstname, u.Lastname, u.Email, u.Gender, hashedPass, u.Avatar,
 	).Scan(&id)
-
 	if err != nil {
 		return 0, err
 	}
@@ -48,13 +52,16 @@ func (db *DB) GetUserByLogin(email string) (*User, error) {
 	user := &User{}
 	err := db.Db.QueryRow(`SELECT id, email, password_hash, first_name, last_name, date_of_birth, avatar, nickname, about_me, is_public FROM users WHERE email = ? OR nickName = ?`, email, email).
 		Scan(&user.ID, &user.Email, &user.Password, &user.Firstname, &user.Lastname, &user.DateOfBirth, &user.Avatar, &user.Nickname, &user.AboutMe, &user.IsPublic)
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.New("user not found")
 		}
 		fmt.Println(err)
 		return nil, errors.New("internal server error")
+	}
+	// Convert NULL nickname to empty string
+	if !user.Nickname.Valid {
+		user.Nickname.String = ""
 	}
 
 	return user, nil
@@ -73,6 +80,9 @@ func (db *DB) CheckIsExistEmailInDB(email string) (int, error) {
 }
 
 func (db *DB) CheckIsExistNickNameInDB(nickName string) (int, error) {
+	if nickName == "" {
+		return 0, nil
+	}
 	var exists int
 	err := db.Db.QueryRow("SELECT 1 FROM users WHERE nickName = ? LIMIT 1", nickName).Scan(&exists)
 	if err == sql.ErrNoRows {

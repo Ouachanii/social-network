@@ -1,14 +1,16 @@
 package handlers
 
 import (
+	"database/sql"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path"
+	"strings"
+
 	"social-network/pkg/models"
 	"social-network/pkg/tools"
-	"strings"
 )
 
 type RegisterResponseApi struct {
@@ -35,12 +37,12 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		DateOfBirth: r.FormValue("birthDate"),
 		Gender:      strings.ToLower(r.FormValue("gender")),
 		AboutMe:     r.FormValue("aboutMe"),
-		Nickname:    r.FormValue("nickName"),
+		Nickname:    sql.NullString{String: r.FormValue("nickName"), Valid: r.FormValue("nickName") != ""},
 	}
 
-	fmt.Println("formData :", user)
+	// fmt.Println("formData :", user)
 
-	statusCode, err := tools.ValidateRegisterForum(user.Firstname, user.Lastname, user.Email, user.Password, user.DateOfBirth, user.Nickname, user.Gender)
+	statusCode, err := tools.ValidateRegisterForum(user.Firstname, user.Lastname, user.Email, user.Password, user.DateOfBirth, user.Nickname.String, user.Gender)
 	if err != nil {
 		tools.ErrorJSONResponse(w, statusCode, err.Error())
 		return
@@ -60,12 +62,12 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if !tools.IsValidAvatarExtension(extension) {
-			tools.ErrorJSONResponse(w, http.StatusBadRequest, "Invalid avatar type. Allowed: JPEG, PNG")
+			tools.ErrorJSONResponse(w, http.StatusBadRequest, "Invalid avatar type. Allowed: JPEG, PNG, JPG, GIF")
 			return
 
 		}
 
-		rand, _ := tools.CenerateJWTToken(user.ID, user.Nickname)
+		rand, _ := tools.CenerateJWTToken(user.ID, user.Email)
 		name := rand + extension
 		Path := "./uploads/avatars/" + name
 		out, err := os.Create(Path)
@@ -91,7 +93,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			tools.ErrorJSONResponse(w, http.StatusBadRequest, "email already used!")
 			return
 		}
-		if err.Error() == "UIQUE constraint failed: users.first_name, users.last_name" {
+		if err.Error() == "UNIQUE constraint failed: users.first_name, users.last_name" {
 			tools.ErrorJSONResponse(w, http.StatusBadRequest, "user already used!")
 			return
 		}
@@ -100,7 +102,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var apiResponse = RegisterResponseApi{
+	apiResponse := RegisterResponseApi{
 		Message: fmt.Sprintf("Success, User ID: %d", userID),
 	}
 

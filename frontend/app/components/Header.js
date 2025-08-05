@@ -5,13 +5,16 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styles from './Header.module.css';
 import { useUser } from '../context/UserContext';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 // Placeholder icons - we will replace these later
-const HomeIcon = () => <span>🏠</span>;
-const FriendsIcon = () => <span>👥</span>;
-const GroupsIcon = () => <span>👨‍👩‍👧‍👦</span>;
-const NotificationsIcon = () => <span>🔔</span>;
-const ChatIcon = () => <span>💬</span>;
+const HomeIcon = () => <span><i className="fa-solid fa-house"  style={{color: '#9b4ef3ff',}}></i></span>;
+const FriendsIcon = () => <span><i className="fa-solid fa-user-group" style={{color: '#9b4ef3ff',}}></i></span>;
+const GroupsIcon = () => <span><i className="fa-solid fa-users" style={{color: '#9b4ef3ff',}}></i></span>;
+const NotificationsIcon = () => <span>
+  <i className="fa-solid fa-bell" style={{color: '#9b4ef3ff',}}></i>
+</span>;
+const ChatIcon = () => <span><i className="fa-solid fa-message" style={{color: '#9b4ef3ff',}}></i></span>;
 
 const DefaultAvatar = ({ className }) => <div className={`${styles.defaultAvatar} ${className || ''}`}></div>;
 
@@ -105,7 +108,7 @@ const Header = () => {
                 </div>
               </Link>
               <div onClick={handleLogout} className={styles.dropdownItem}>
-                Logout
+                <i className="fa-solid fa-power-off" style={{color: "red",}}></i> Logout
               </div>
             </div>
           )}

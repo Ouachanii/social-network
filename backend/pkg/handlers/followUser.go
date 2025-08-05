@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -63,7 +62,7 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 		ReceiverId: followingID,
 	}
 
-	fmt.Println(notification)
+	// fmt.Println(notification)
 
 	notification, err = models.Db.InsertNotification(&notification)
 	if err != nil {

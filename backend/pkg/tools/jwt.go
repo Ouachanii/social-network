@@ -8,10 +8,10 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func CenerateJWTToken(userId int, userName string) (string, error) {
+func CenerateJWTToken(userId int, userEmail string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":        userId,
-		"user-name": userName,
+		"user-name": userEmail,
 		"exp":       time.Now().Add(200 * 365 * 24 * time.Hour).Unix(),
 	})
 
