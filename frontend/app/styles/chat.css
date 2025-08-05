@@ -1,4 +1,12 @@
 /* Chat Styles */
+.main-chat {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  justify-items: center;
+  height: 100%;
+}
+
 .chat-container {
   display: flex;
   flex-direction: column;
@@ -6,6 +14,8 @@
   background: linear-gradient(145deg, hsl(240, 8%, 12%), hsl(240, 6%, 18%));
   border: 1px solid hsl(240, 6%, 20%);
   border-radius: 0.75rem;
+  width: 75%;
+
 }
 
 .chat-header {

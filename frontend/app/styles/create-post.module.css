@@ -1,3 +1,10 @@
+.main-post {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  justify-items: center;
+  height: 100%;
+}
 .createPost {
   background: var(--background-secondary);
   border-radius: 8px;

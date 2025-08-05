@@ -1,8 +1,7 @@
 "use client";
-// import PostCard from "./PostCard";
 import { useState } from "react";
-// import { Send, User } from "lucide-react";
 import "../styles/chat.css"; // Assuming you have a CSS file for styling
+import UserProfile from "../components/UserProfile";
 
 const ChatPage = () => {
   const [messages, setMessages] = useState([
@@ -33,57 +32,58 @@ const ChatPage = () => {
   //   }
   // };
   return (
-    <div className="chat-container">
-      <div className="chat-header">
-        <h2 className="chat-title">General Chat</h2>
-        <p className="chat-subtitle">4 members online</p>
-      </div>
+    <div className="main-chat">
+      <div className="chat-container">
+        <div className="chat-header">
+          <h2 className="chat-title">General Chat</h2>
+          <p className="chat-subtitle">4 members online</p>
+        </div>
 
-      <div className="chat-messages">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`chat-message ${msg.isOwn ? 'own' : 'other'}`}
-          >
-            <div className="chat-message-content">
-              <div className="chat-message-bubble">
-                {!msg.isOwn && (
-                  <p className="chat-message-sender">{msg.sender}</p>
-                )}
-                <p>{msg.text}</p>
+        <div className="chat-messages">
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`chat-message ${msg.isOwn ? 'own' : 'other'}`}
+            >
+              <div className="chat-message-content">
+                <div className="chat-message-bubble">
+                  {!msg.isOwn && (
+                    <p className="chat-message-sender">{msg.sender}</p>
+                  )}
+                  <p>{msg.text}</p>
+                </div>
+                <p className="chat-message-time">
+                  {msg.time}
+                </p>
               </div>
-              <p className="chat-message-time">
-                {msg.time}
-              </p>
+              <div className="chat-message-avatar">
+                {/* <User className="chat-message-avatar-icon" /> */}
+              </div>
             </div>
-            <div className="chat-message-avatar">
-              {/* <User className="chat-message-avatar-icon" /> */}
-            </div>
+          ))}
+        </div>
+
+        <div className="chat-input-container">
+          <div className="chat-input-form">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              // onKeyPress={handleKeyPress}
+              placeholder="Type a message..."
+              className="chat-input"
+            />
+            <button
+              onClick={sendMessage}
+              className="chat-send-button"
+            >
+              {/* <Send className="chat-send-icon" /> */}
+            </button>
+
           </div>
-        ))}
-      </div>
-
-      <div className="chat-input-container">
-        <div className="chat-input-form">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            // onKeyPress={handleKeyPress}
-            placeholder="Type a message..."
-            className="chat-input"
-          />
-          <button
-            onClick={sendMessage}
-            className="chat-send-button"
-          >
-            {/* <Send className="chat-send-icon" /> */}
-          </button>
-
         </div>
       </div>
+      <UserProfile />
     </div>
-
-
 
   );
 };
