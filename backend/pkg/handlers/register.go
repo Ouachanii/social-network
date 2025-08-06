@@ -67,7 +67,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 		}
 
-		rand, _ := tools.CenerateJWTToken(user.ID, user.Email)
+		rand, _ := tools.GenerateJWTToken(user.ID, user.Email)
 		name := rand + extension
 		Path := "./uploads/avatars/" + name
 		out, err := os.Create(Path)

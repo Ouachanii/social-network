@@ -13,6 +13,9 @@ import (
 func init() {
 	db := sqlite.CreateAllTables()
 	models.Db = models.InitializeDb(db)
+	if err := models.Db.RunMigrations(); err != nil {
+		panic(fmt.Sprintf("Failed to run migrations: %v", err))
+	}
 }
 
 func main() {
@@ -33,6 +36,7 @@ func main() {
 	http.HandleFunc("/api/upload/post-image", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UploadPostImage)))
 
 	http.HandleFunc("/ws", handlers.HandleWebSocket)
+	http.HandleFunc("/ws/group", handlers.GroupChatWebSocket)
 
 	http.HandleFunc("/api/groups", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupsHandler)))
 	http.HandleFunc("/api/groups/invite", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupInviteHandler)))
@@ -52,9 +56,14 @@ func main() {
 	http.HandleFunc("/api/notifications", handlers.HandleCORS(handlers.TokenMiddleware(handlers.NotificationsHandler)))
 	http.Handle("/api/notifications/read", handlers.HandleCORS(handlers.TokenMiddleware(handlers.MarkNotificationAsReadHandler)))
 
+	http.HandleFunc("/api/groups/chat", handlers.HandleCORS(handlers.TokenMiddleware(handlers.PostGroupMessage)))
+	http.HandleFunc("/api/groups/messages", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GetGroupMessages)))
+
 	http.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
 
 	http.HandleFunc("/", handlers.HomeHandler)
+
+	handlers.InitGroupChatHub()
 
 	http.ListenAndServe(":8080", nil)
 }

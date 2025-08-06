@@ -329,3 +329,10 @@ func (db *DB) GetUserIDFromMember(memberID int) (int, error) {
 	err := db.Db.QueryRow("SELECT user_id FROM group_members WHERE id = ?", memberID).Scan(&userID)
 	return userID, err
 }
+
+// IsUserGroupMember checks if a user is a member of a group
+func (db *DB) IsUserGroupMember(userID, groupID int) (bool, error) {
+	var exists bool
+	err := db.Db.QueryRow("SELECT EXISTS(SELECT 1 FROM group_members WHERE user_id = ? AND group_id = ?)", userID, groupID).Scan(&exists)
+	return exists, err
+}

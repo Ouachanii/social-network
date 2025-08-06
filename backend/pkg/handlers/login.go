@@ -46,7 +46,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	if nickname == "" {
 		nickname = "Anonymous"
 	}
-	JWTToken, err := tools.CenerateJWTToken(user.ID, nickname)
+	JWTToken, err := tools.GenerateJWTToken(user.ID, nickname)
 	if err != nil {
 		fmt.Println(err)
 		tools.ErrorJSONResponse(w, http.StatusInternalServerError, "can't generate a new JWT token, try againe")

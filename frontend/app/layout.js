@@ -3,6 +3,7 @@ import "./styles/globals.css";
 import { usePathname } from "next/navigation";
 import Header from "./components/Header";
 import { UserProvider } from "./context/UserContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 export default function RootLayout({ children }) {
   const pathname = usePathname();
@@ -11,10 +12,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <UserProvider>
-          {showHeader && <Header />}
-          <main>{children}</main>
-        </UserProvider>
+        <ThemeProvider>
+          <UserProvider>
+            {showHeader && <Header />}
+            <main>{children}</main>
+          </UserProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
