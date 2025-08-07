@@ -1,45 +1,57 @@
-'use client';
-
-import { createContext, useContext, useState, useEffect } from 'react';
+"use client";
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 
 const UserContext = createContext(null);
 
-export function useUser() {
-  return useContext(UserContext);
-}
-
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const response = await fetch('/api/user', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-          if (response.ok) {
-            const userData = await response.json();
-            setUser(userData);
-          } else {
-            setUser(null);
-          }
-        } catch (error) {
-          console.error('Failed to fetch user:', error);
-          setUser(null);
-        }
+  const fetchUser = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setIsLoading(false);
+      // Don't redirect here, let pages handle it
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8080/api/profile/", {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data);
+      } else {
+        // Token might be invalid
+        localStorage.removeItem('token');
+        localStorage.removeItem('isLoggedIn');
+        setUser(null);
       }
-      setLoading(false);
-    };
-
-    fetchUser();
+    } catch (error) {
+      console.error("Error fetching user in context:", error);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  const value = { user, setUser, loading };
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
-  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+  const value = { user, isLoading, refetchUser: fetchUser };
+
+  return (
+    <UserContext.Provider value={value}>
+      {children}
+    </UserContext.Provider>
+  );
+}
+
+export function useUser() {
+  return useContext(UserContext);
 }

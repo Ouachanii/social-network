@@ -21,7 +21,6 @@ export default function ProfilePage() {
       setError(null);
       
       try {
-        // Check if we're in browser environment
         if (typeof window === 'undefined') {
           return;
         }
@@ -35,10 +34,11 @@ export default function ProfilePage() {
         const response = await fetch("/api/profile", {
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          credentials: 'include'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
         });
+        const responseText = await response.text();
 
         if (!response.ok) {
           if (response.status === 401) {
@@ -47,22 +47,36 @@ export default function ProfilePage() {
             router.replace('/login');
             return;
           }
-          throw new Error(`Server error: ${response.status}`);
+          throw new Error(`Server error: ${response.status}\nResponse: ${responseText}`);
         }
 
-        const data = await response.json();
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch (e) {
+          console.error('Failed to parse JSON:', e);
+          throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
+        }
         
-        if (!data.profile) {
+        if (!data) {
           throw new Error('Profile data not found');
         }
 
-        setProfile(data.profile);
-        // Dispatch a global event with the user data
-        window.dispatchEvent(new CustomEvent('userLoaded', { detail: data.profile }));
+        setProfile({
+          firstName: data.first_name,
+          lastName: data.last_name,
+          email: data.email,
+          nickname: data.nickname?.String || '',
+          dateOfBirth: data.date_of_birth,
+          aboutMe: data.about_me,
+          avatarUrl: data.avatar?.replace('./uploads', '/uploads')
+        });
+        
+        window.dispatchEvent(new CustomEvent('userLoaded', { detail: data }));
         setPosts(data.posts || []);
-        setFollowers(data.followers || []);
-        setFollowing(data.following || []);
-        setPrivacy(data.privacy || "public");
+        setFollowers([]); // We'll need to implement this in the backend
+        setFollowing([]); // We'll need to implement this in the backend
+        setPrivacy(data.is_public ? "public" : "private");
         setError(null);
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -163,14 +177,15 @@ export default function ProfilePage() {
       <div className={styles.profileHeader}>
         <div className={styles.avatarSection}>
           <img 
-            src={profile.avatarUrl || '/default-avatar.jpg'} 
+            src={profile.avatarUrl?.startsWith('http') ? profile.avatarUrl : '/default-avatar.jpg'} 
             alt="Profile" 
             className={styles.avatar}
+            onError={(e) => e.target.src = '/default-avatar.jpg'}
           />
           <div className={styles.profileInfo}>
-            <h1 className={styles.name}>{profile.firstName} {profile.lastName}</h1>
+            <h1 className={styles.name}>{String(profile.firstName || '')} {String(profile.lastName || '')}</h1>
             <div className={styles.stats}>
-              {followers.length} followers · {following.length} following
+              {followers.length || 0} followers · {following.length || 0} following
             </div>
             <div className={styles.actions}>
               <button className={styles.primaryButton} onClick={handlePrivacyToggle}>
@@ -219,26 +234,26 @@ export default function ProfilePage() {
               <div className={styles.infoGrid}>
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Email:</span>
-                  {profile.email}
+                  {String(profile.email || '')}
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Birthday:</span>
-                  {profile.dateOfBirth}
+                  {String(profile.dateOfBirth || '')}
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Nickname:</span>
-                  {profile.nickname}
+                  {String(profile.nickname || '')}
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Privacy:</span>
-                  {privacy}
+                  {String(privacy || 'public')}
                 </div>
               </div>
             </div>
 
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>About Me</h2>
-              <p>{profile.aboutMe}</p>
+              <p>{String(profile.aboutMe || '')}</p>
             </div>
           </>
         )}

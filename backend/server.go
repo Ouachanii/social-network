@@ -13,9 +13,6 @@ import (
 func init() {
 	db := sqlite.CreateAllTables()
 	models.Db = models.InitializeDb(db)
-	if err := models.Db.RunMigrations(); err != nil {
-		panic(fmt.Sprintf("Failed to run migrations: %v", err))
-	}
 }
 
 func main() {
@@ -24,7 +21,11 @@ func main() {
 	http.HandleFunc("/api/register", handlers.HandleCORS(handlers.Register))
 	http.HandleFunc("/api/login", handlers.HandleCORS(handlers.Login))
 	http.HandleFunc("/api/logout", handlers.HandleCORS(handlers.TokenMiddleware(handlers.Logout)))
-	http.HandleFunc("/api/user", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GetUser)))
+	http.HandleFunc("/api/user", handlers.HandleCORS(handlers.TokenMiddleware(handlers.CurrentUserHandler)))
+	http.HandleFunc("/api/users", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GetAllUsersHandler)))
+	http.HandleFunc("/api/profile", handlers.HandleCORS(handlers.TokenMiddleware(handlers.ProfileHandler)))  // Handle /api/profile
+	http.HandleFunc("/api/profile/", handlers.HandleCORS(handlers.TokenMiddleware(handlers.ProfileHandler))) // Handle /api/profile/
+	http.HandleFunc("/api/profile/about-me", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UpdateAboutMeHandler)))
 
 	http.HandleFunc("/api/privacy/update", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UpdatePrivacy)))
 	http.HandleFunc("/api/follow/{userID}", handlers.HandleCORS(handlers.TokenMiddleware(handlers.FollowUser))) // 1-need send notification func with ws | 2- need handling this cases: *when user follow himself  *when user follow a user already follower (follow the same follower 2 times)
@@ -35,7 +36,11 @@ func main() {
 	http.HandleFunc("/api/upload/avatar", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UploadAvatar)))
 	http.HandleFunc("/api/upload/post-image", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UploadPostImage)))
 
-	http.HandleFunc("/ws", handlers.HandleWebSocket)
+	hub := handlers.NewHub()
+	go hub.Run()
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		handlers.HandleWebSocket(hub, w, r)
+	})
 	http.HandleFunc("/ws/group", handlers.GroupChatWebSocket)
 
 	http.HandleFunc("/api/groups", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupsHandler)))

@@ -5,23 +5,27 @@
 }
 
 .coverPhoto {
-  height: 350px;
+  height: 250px;
   width: 100%;
   background: var(--background-secondary);
   border-radius: 8px;
-  margin-bottom: -90px;
+  margin-bottom: -95px;
   position: relative;
 }
 
 .profileHeader {
+  display: flex;
   padding: 0 32px;
+  height: 250px;
   margin-bottom: 16px;
+  position: relative;
 }
 
 .avatarSection {
   display: flex;
   align-items: flex-end;
-  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
 }
 
 .avatar {
@@ -31,6 +35,7 @@
   border: 6px solid var(--background-secondary);
   background: var(--border-color);
   margin-right: 16px;
+  margin-bottom: 60px;
 }
 
 .profileInfo {

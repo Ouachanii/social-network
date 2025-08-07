@@ -20,7 +20,7 @@ func GetUserFromRequest(r *http.Request) (*models.User, int, error) {
 	if err != nil {
 		return nil, http.StatusUnauthorized, err
 	}
-	user, err := models.GetUserByID(userID)
+	user, err := models.Db.GetUserByID(userID)
 	if err != nil {
 		return nil, http.StatusUnauthorized, err
 	}

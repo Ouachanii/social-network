@@ -146,11 +146,25 @@ func (db *DB) UpdatePrivacy(userID int) error {
 	return nil
 }
 
-func GetUserByID(id int) (*User, error) {
+func (db *DB) GetUserByID(id int) (*User, error) {
 	var user User
 	err := Db.Db.QueryRow("SELECT id, email, password_hash, first_name, last_name, date_of_birth, avatar, nickname, about_me, is_public FROM users WHERE id = ?", id).Scan(&user.ID, &user.Email, &user.Password, &user.Firstname, &user.Lastname, &user.DateOfBirth, &user.Avatar, &user.Nickname, &user.AboutMe, &user.IsPublic)
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
+}
+
+
+
+// UpdateAvatar updates the user's avatar path in the database
+func (db *DB) UpdateAvatar(userID int, avatarPath string) error {
+	_, err := db.Db.Exec("UPDATE users SET avatar = ? WHERE id = ?", avatarPath, userID)
+	return err
+}
+
+// UpdateAboutMe updates the user's about_me text in the database
+func (db *DB) UpdateAboutMe(userID int, aboutMeText string) error {
+	_, err := db.Db.Exec("UPDATE users SET about_me = ? WHERE id = ?", aboutMeText, userID)
+	return err
 }
