@@ -40,11 +40,11 @@ export default function Login() {
       } else {
         const result = await response.json();
         if (result.token) {
-          // Decode the token to get the user ID
+          // Decode the base64-encoded token
           let userId = null;
           try {
-            const payload = JSON.parse(atob(result.token.split('.')[1]));
-            userId = payload.id; // Assuming the payload has an 'id' field
+            const payload = JSON.parse(atob(result.token));
+            userId = payload.id; // Get the user ID from the decoded token
           } catch (e) {
             console.error("Failed to decode token", e);
             throw new Error("Invalid token received");

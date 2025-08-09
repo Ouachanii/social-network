@@ -22,18 +22,39 @@ export default function GroupChat({ groupId }) {
         
         const token = localStorage.getItem('token');
         if (!token) {
+          localStorage.removeItem('token'); // Clean up invalid token
+          window.location.href = '/login'; // Redirect to login
           throw new Error('No authentication token found');
         }
+        
+        // Check if token is expired (if it's a JWT)
+        try {
+          const tokenParts = token.split('.');
+          if (tokenParts.length === 3) {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            if (payload.exp && payload.exp * 1000 < Date.now()) {
+              localStorage.removeItem('token');
+              window.location.href = '/login';
+              throw new Error('Authentication expired. Please login again.');
+            }
+          }
+        } catch (e) {
+          console.error('Error checking token:', e);
+        }
+
+        // Prepare auth header with Bearer token
+        const authToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
 
         const res = await fetch(`http://localhost:8080/api/groups/messages?group_id=${groupId}&limit=50`, {
-          credentials: 'include',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': authToken,
             'Accept': 'application/json',
             'Content-Type': 'application/json',
           }
         });
-
+        console.log("-------------")
+        console.log(res)
+        console.log("-------------")
         if (!res.ok) {
           if (res.status === 401) {
             throw new Error('Not authenticated. Please login again.');
@@ -66,61 +87,142 @@ export default function GroupChat({ groupId }) {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
           throw new Error('No authentication token found');
         }
 
-        // Create WebSocket with Authorization header
+        // Create WebSocket connection
         ws.current = new WebSocket(`ws://localhost:8080/ws/group?group_id=${groupId}`);
-        ws.current.addEventListener('open', () => {
-          // Send authorization after connection
-          ws.current.send(JSON.stringify({
-            type: 'auth',
-            token: token
-          }));
-        });
-
+        
+        let authSent = false;
+        let authTimeout;
+        
         ws.current.onopen = () => {
-          setIsConnected(true);
-          setError(null);
+          console.log('WebSocket connection opened');
+          
+          // Set timeout for authentication
+          authTimeout = setTimeout(() => {
+            if (!isConnected) {
+              console.error('Authentication timeout');
+              ws.current?.close();
+            }
+          }, 5000);
+          
+          // Ensure token has Bearer prefix
+          const authToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+          
+          // Send authentication message
+          try {
+            ws.current.send(JSON.stringify({
+              type: 'auth',
+              token: authToken
+            }));
+            authSent = true;
+          } catch (err) {
+            console.error('Failed to send auth message:', err);
+            clearTimeout(authTimeout);
+            ws.current?.close();
+          }
         };
 
         ws.current.onmessage = (event) => {
           try {
-            const msg = JSON.parse(event.data);
+            // Handle authentication success message
+            if (event.data === "authenticated") {
+              console.log('WebSocket authenticated');
+              clearTimeout(authTimeout);
+              setIsConnected(true);
+              setError(null);
+              return;
+            }
+
+            // Parse and handle regular messages
+            let msg;
+            try {
+              msg = JSON.parse(event.data);
+            } catch (err) {
+              console.error('Invalid message format:', event.data);
+              return;
+            }
+
+            // Handle error messages
+            if (msg.error) {
+              setError(msg.error);
+              if (msg.error.includes('auth') || msg.error.includes('token')) {
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+              }
+              return;
+            }
+
+            // Handle regular chat messages
             if (!msg.text && !msg.Text) {
               console.warn('Received message without text:', msg);
               return;
             }
-            setMessages(prev => [...prev, msg]);
+
+            // Add message to state
+            setMessages(prev => {
+              // Check for duplicates
+              const isDuplicate = prev.some(m => 
+                m.text === msg.text && 
+                m.sender === msg.sender && 
+                m.time === msg.time
+              );
+              if (isDuplicate) return prev;
+              return [...prev, msg];
+            });
+
             setTimeout(scrollToBottom, 100);
           } catch (err) {
-            console.error('Failed to parse message:', err);
+            console.error('Failed to handle message:', err);
           }
         };
-
+        
         let reconnectAttempts = 0;
         const maxReconnectAttempts = 5;
-        
+
         ws.current.onclose = (event) => {
+          console.log('WebSocket closed:', event.code, event.reason);
           setIsConnected(false);
-          
+          clearTimeout(authTimeout);
+
+          // Don't reconnect if it was a normal closure or authentication issue
+          if (event.code === 1000 || event.code === 1001 || event.reason.includes('auth')) {
+            if (event.reason.includes('auth')) {
+              localStorage.removeItem('token');
+              window.location.href = '/login';
+            }
+            return;
+          }
+
           if (reconnectAttempts < maxReconnectAttempts) {
-            // Exponential backoff: 3s, 6s, 12s, 24s, 48s
-            const delay = 3000 * Math.pow(2, reconnectAttempts);
+            const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
             setError(`Connection lost. Reconnecting in ${delay/1000} seconds...`);
             reconnectTimeoutRef.current = setTimeout(() => {
               reconnectAttempts++;
               connectWebSocket();
             }, delay);
           } else {
-            setError('Connection lost. Please refresh the page to reconnect.');
+            setError('Connection lost. Please refresh the page.');
           }
         };
 
-        ws.current.onerror = (error) => {
-          console.error('WebSocket error:', error);
-          setError('Connection error. Attempting to reconnect...');
-          ws.current?.close();
+        ws.current.onerror = (event) => {
+          console.error('WebSocket error:', {
+            type: event.type,
+            readyState: ws.current?.readyState,
+            url: ws.current?.url
+          });
+          
+          if (!authSent) {
+            setError('Failed to establish connection');
+          } else if (!isConnected) {
+            setError('Authentication failed');
+          } else {
+            setError('Connection error');
+          }
         };
       } catch (err) {
         setError('Failed to connect');
