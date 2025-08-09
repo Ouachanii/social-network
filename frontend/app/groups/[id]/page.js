@@ -4,6 +4,7 @@ import { useRouter, useParams } from 'next/navigation';
 import styles from '../../styles/groups.module.css';
 import { CreatePost } from '../../posts/create_post';
 import { PostFeed } from '../../posts/PostFeed';
+import GroupChat from '../../groups/GroupChat';
 
 export default function GroupDetailPage() {
     const router = useRouter();
@@ -348,6 +349,12 @@ export default function GroupDetailPage() {
                 >
                     Members
                 </button>
+                <button
+                    className={`${styles.tab} ${activeTab === 'chat' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('chat')}
+                >
+                    Chat
+                </button>
             </div>
 
             {/* posts Tab */}
@@ -357,7 +364,12 @@ export default function GroupDetailPage() {
                     <PostFeed groupId={groupId} />
                 </div>
             )}
-
+            {/* chat Tab */}
+            {activeTab === 'chat' && (
+                <div className={styles.tabContent}>
+                    <GroupChat groupId={groupId} />
+                </div>
+            )}
             {/* events Tab */}
             {activeTab === 'events' && (
                 <div className={styles.tabContent}>
@@ -531,4 +543,4 @@ export default function GroupDetailPage() {
                 </div>)}
         </div>
     );
-} 
+}

@@ -65,8 +65,9 @@ export function CreatePost({ onPostCreated, groupId }) {
     <div className={styles.createPost}>
       <form onSubmit={handleSubmit}>
         <div className={styles.userInput}>
-          <div className={styles.avatar}>
-            <img
+          <div className={styles.Authoravatar}>
+              <i className="fa-solid fa-user" style={{color: '#9b4ef3ff'}}></i>
+            {/* <img
               src={user && user.avatar ? `http://localhost:8080/uploads/avatars/${user.avatar}` : '/default-avatar.jpg'}
               alt={'User Avatar'}
               className={styles.authorAvatar}
@@ -74,7 +75,7 @@ export function CreatePost({ onPostCreated, groupId }) {
                 e.target.onerror = null; 
                 e.target.src='/default-avatar.jpg';
               }}
-            />
+            /> */}
           </div>
           <textarea
             value={content}
@@ -106,7 +107,9 @@ export function CreatePost({ onPostCreated, groupId }) {
             <span className={styles.addToPostText}>Add to your post</span>
             <div className={styles.postButtons}>
               <label className={styles.mediaButton}>
-                <span role="img" aria-label="Add Photo">🖼️</span>
+                <span role="img" aria-label="Add Photo">
+                  <i className="fa-solid fa-image" style={{color: '#9b4ef3ff'}}></i>
+                </span>
                 Photo
                 <input
                   type="file"

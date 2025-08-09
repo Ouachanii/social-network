@@ -21,7 +21,11 @@ func main() {
 	http.HandleFunc("/api/register", handlers.HandleCORS(handlers.Register))
 	http.HandleFunc("/api/login", handlers.HandleCORS(handlers.Login))
 	http.HandleFunc("/api/logout", handlers.HandleCORS(handlers.TokenMiddleware(handlers.Logout)))
-	http.HandleFunc("/api/user", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GetUser)))
+	http.HandleFunc("/api/user", handlers.HandleCORS(handlers.TokenMiddleware(handlers.CurrentUserHandler)))
+	http.HandleFunc("/api/users", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GetAllUsersHandler)))
+	http.HandleFunc("/api/profile", handlers.HandleCORS(handlers.TokenMiddleware(handlers.ProfileHandler)))  // Handle /api/profile
+	http.HandleFunc("/api/profile/", handlers.HandleCORS(handlers.TokenMiddleware(handlers.ProfileHandler))) // Handle /api/profile/
+	http.HandleFunc("/api/profile/about-me", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UpdateAboutMeHandler)))
 
 	http.HandleFunc("/api/privacy/update", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UpdatePrivacy)))
 	http.HandleFunc("/api/follow/{userID}", handlers.HandleCORS(handlers.TokenMiddleware(handlers.FollowUser))) // 1-need send notification func with ws | 2- need handling this cases: *when user follow himself  *when user follow a user already follower (follow the same follower 2 times)
@@ -37,6 +41,7 @@ func main() {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		handlers.HandleWebSocket(hub, w, r)
 	})
+	http.HandleFunc("/ws/group", handlers.GroupChatWebSocket)
 
 	http.HandleFunc("/api/groups", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupsHandler)))
 	http.HandleFunc("/api/groups/invite", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupInviteHandler)))
@@ -56,10 +61,15 @@ func main() {
 	http.HandleFunc("/api/notifications", handlers.HandleCORS(handlers.TokenMiddleware(handlers.NotificationsHandler)))
 	http.Handle("/api/notifications/read", handlers.HandleCORS(handlers.TokenMiddleware(handlers.MarkNotificationAsReadHandler)))
 
+	http.HandleFunc("/api/groups/chat", handlers.HandleCORS(handlers.TokenMiddleware(handlers.PostGroupMessage)))
+	http.HandleFunc("/api/groups/messages", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GetGroupMessages)))
+
 	http.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
 
 	http.HandleFunc("/", handlers.HomeHandler)
 	// http.HandleFunc("/", handlers.HomeHandler)
+
+	handlers.InitGroupChatHub()
 
 	http.ListenAndServe(":8080", nil)
 }

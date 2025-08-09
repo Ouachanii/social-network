@@ -5,20 +5,26 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styles from './Header.module.css';
 import { useUser } from '../context/UserContext';
+import { useTheme } from '../context/ThemeContext';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 // Placeholder icons - we will replace these later
-const HomeIcon = () => <span>🏠</span>;
-const FriendsIcon = () => <span>👥</span>;
-const GroupsIcon = () => <span>👨‍👩‍👧‍👦</span>;
-const NotificationsIcon = () => <span>🔔</span>;
-const ChatIcon = () => <span>💬</span>;
+const navIcons = [
+  { name: 'home', component: (active, theme) => <span><i className="fa-solid fa-house" style={{ color: active ? (theme === 'light' ? "#043df7ff" : "#bb86fc") : "" }}></i></span>, href: '/' },
+  { name: 'followers', component: (active, theme) => <span><i className="fa-solid fa-user-group" style={{ color: active ? (theme === 'light' ? "#043df7ff" : "#bb86fc") : "" }}></i></span>, href: '/followers' },
+  { name: 'groups', component: (active, theme) => <span><i className="fa-solid fa-users" style={{ color: active ? (theme === 'light' ? "#043df7ff" : "#bb86fc") : "" }}></i></span>, href: '/groups' },
+  { name: 'chat', component: (active, theme) => <span><i className="fa-solid fa-message" style={{ color: active ? (theme === 'light' ? "#043df7ff" : "#bb86fc") : "" }}></i></span>, href: '/chat' },
+  { name: 'notifications', component: (active, theme) => <span><i className="fa-solid fa-bell" style={{ color: active ? (theme === 'light' ? "#043df7ff" : "#bb86fc") : "" }}></i></span>, href: '/notifications' },
+];
 
 const DefaultAvatar = ({ className }) => <div className={`${styles.defaultAvatar} ${className || ''}`}></div>;
 
 const Header = () => {
-  const { user, setUser } = useUser();
+  const { user} = useUser();
+  const { theme, toggleTheme } = useTheme();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
+  const [setShowNotifications] = useState(false);
+  const [activeNav, setActiveNav] = useState('home');
   const router = useRouter();
   const profileMenuRef = useRef(null);
   const notificationsRef = useRef(null);
@@ -56,35 +62,20 @@ const Header = () => {
       </div>
 
       <nav className={styles.navSection}>
-        <Link href="/" className={styles.navLink} title="Home">
-          <HomeIcon />
-        </Link>
-        <Link href="/followers" className={styles.navLink} title="Followers">
-          <FriendsIcon />
-        </Link>
-        <Link href="/groups" className={styles.navLink} title="Groups">
-          <GroupsIcon />
-        </Link>
-         <Link href="/chat" className={styles.navLink} title="chat">
-          <ChatIcon />
-        </Link>
+        {navIcons.map((icon) => (
+          <Link
+            key={icon.name}
+            href={icon.href}
+            className={styles.navLink}
+            title={icon.name.charAt(0).toUpperCase() + icon.name.slice(1)}
+            onClick={() => setActiveNav(icon.name)}
+          >
+            {icon.component(activeNav === icon.name, theme)}
+          </Link>
+        ))}
       </nav>
 
       <div className={styles.rightSection}>
-        <div className={styles.iconWrapper} onClick={() => setShowNotifications(!showNotifications)} ref={notificationsRef}>
-          <NotificationsIcon />
-          {showNotifications && (
-            <div className={styles.dropdownMenu}>
-              <div className={styles.dropdownHeader}>Notifications</div>
-              {/* Placeholder for notifications */}
-              <div className={styles.dropdownItem}>User X sent you a follow request.</div>
-              <div className={styles.dropdownItem}>Your post got a new comment.</div>
-              <Link href="/notifications" className={styles.dropdownSeeAll}>
-                See All
-              </Link>
-            </div>
-          )}
-        </div>
         
         <div className={styles.profileWrapper} onClick={() => setShowProfileMenu(!showProfileMenu)} ref={profileMenuRef}>
           {user && user.avatar ? (
@@ -104,9 +95,13 @@ const Header = () => {
                   <span>Profile</span>
                 </div>
               </Link>
-              <div onClick={handleLogout} className={styles.dropdownItem}>
-                Logout
+              <div onClick={toggleTheme} className={styles.dropdownItem}>
+                  {theme === 'dark' ? '☀️ light theme' : '🌙 dark theme'}
               </div>
+              <div onClick={handleLogout} className={styles.dropdownItem}>
+                <i className="fa-solid fa-power-off" style={{color: "red",}}></i> Logout
+              </div>
+
             </div>
           )}
         </div>

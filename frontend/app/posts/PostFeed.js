@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from '../styles/posts.module.css';
 import { CommentSection } from './CommentSection';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 export function formatDate(dateString) {
         const fixedDateStr = dateString.replace(' at ', ' ');
@@ -257,14 +258,22 @@ export function PostFeed({ groupId }) {
                 <article key={`${post.Pid}-${index}`} className={styles.post}>
                     <div className={styles.postHeader}>
                         <div className={styles.authorAvatar}>
-                            <img
-                                src={post.Avatar ? `http://localhost:8080/${post.Avatar}` : '/default-avatar.jpg'}
-                                alt={post.Username}
-                                className={styles.authorAvatar}
-                                onError={(e) => {
-                                    console.log('Avatar image failed to load:', post.Avatar);
-                                }}
-                            />
+                            
+                            {post.Avatar ? (
+                                <img
+                                    src={`http://localhost:8080/${post.Avatar}`}
+                                    alt={post.Username}
+                                    className={styles.authorAvatar}
+                                    onError={(e) => {
+                                        console.log('Author avatar failed to load:', post.Avatar);
+                                        e.target.style.display = 'none';
+                                    }}
+                                />
+                            ) : (
+                                <div className={styles.defaultAvatar}>
+                                    <i className="fa-solid fa-user" style={{color: '#9b4ef3ff',}}></i>
+                                </div>
+                            )}
                         </div>
                         <div className={styles.authorInfo}>
                             <h3 className={styles.authorName}>{post.Username || 'Anonymous'}</h3>
@@ -301,7 +310,7 @@ export function PostFeed({ groupId }) {
                             aria-label="Like"
                         >
                             <span className={styles.actionIcon}>
-                                👍
+                                <i className="fa-solid fa-thumbs-up" ></i>
                             </span>
                             <span className={styles.actionText}>
                                 {post.Likes || 0}
@@ -313,7 +322,9 @@ export function PostFeed({ groupId }) {
                             onClick={() => handleDislike(post.Pid)}
                             aria-label="Dislike"
                         >
-                            <span className={styles.actionIcon}>👎</span>
+                            <span className={styles.actionIcon}>
+                                <i className="fa-solid fa-thumbs-down"></i>
+                            </span>
                             <span className={styles.actionText}>
                                 {post.Dislikes || 0}
                             </span>
@@ -324,7 +335,9 @@ export function PostFeed({ groupId }) {
                             onClick={() => toggleComments(post.Pid)}
                             aria-label="Comment"
                         >
-                            <span className={styles.actionIcon}>💬</span>
+                            <span className={styles.actionIcon}>
+                                <i className="fa-solid fa-comment"></i>
+                            </span>
                             <span className={styles.actionText}>
                                 {post.NbComment || 0}
                             </span>

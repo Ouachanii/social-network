@@ -25,5 +25,7 @@ export function LogoutButton() {
     }
   };
 
-  return <button onClick={handleLogout}>Logout</button>;
+  return <button onClick={handleLogout}>
+    <i className="fa-solid fa-right-from-bracket"></i>
+  </button>;
 }

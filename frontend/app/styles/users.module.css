@@ -1,0 +1,49 @@
+.usersContainer {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+.usersList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.userCard {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f0f2f5;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.2s;
+}
+
+.userCard:hover {
+  background-color: #e4e6eb;
+}
+
+.userAvatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-right: 15px;
+  object-fit: cover;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  font-weight: 600;
+  margin: 0;
+}
+
+.userNickname {
+  color: #65676b;
+  margin: 0;
+}

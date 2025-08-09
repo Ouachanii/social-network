@@ -1,13 +1,26 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from 'next/navigation';
-import styles from "../styles/profile.module.css";
+import styles from "../profile.module.css";
+
+async function fetchJSON(url, options) {
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
+  const contentType = res.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    return await res.json();
+  } else {
+    throw new Error('Expected JSON response but got something else');
+  }
+}
 
 export default function ProfilePage() {
   const router = useRouter();
   const params = useParams();
-  const userId = params?.id; // Get user ID from URL params if viewing another user's profile
-  
+  const userId = params?.id;
+
   const [profile, setProfile] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -25,113 +38,93 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       try {
         if (typeof window === 'undefined') {
           return;
         }
-        
+
         const token = localStorage.getItem('token');
         if (!token) {
           router.replace('/login');
           return;
         }
 
+        const headers = {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        };
+
         // Fetch current user info first
-        const currentUserResponse = await fetch("/api/profile", {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        });
+        const currentUserData = await fetchJSON("/api/profile", { headers });
+        setCurrentUser(currentUserData);
 
-        if (currentUserResponse.ok) {
-          const currentUserData = await currentUserResponse.json();
-          setCurrentUser(currentUserData);
-          
-          // If no userId in params, show current user's profile
-          if (!userId) {
-            setIsOwnProfile(true);
-            setProfile({
-              id: currentUserData.id,
-              firstName: currentUserData.first_name,
-              lastName: currentUserData.last_name,
-              email: currentUserData.email,
-              nickname: currentUserData.nickname?.String || '',
-              dateOfBirth: currentUserData.date_of_birth,
-              aboutMe: currentUserData.about_me,
-              avatarUrl: currentUserData.avatar?.replace('./uploads', '/uploads')
-            });
-            setPosts(currentUserData.posts || []);
-            setPrivacy(currentUserData.is_public ? "public" : "private");
-          } else {
-            // Fetch other user's profile
-            const otherUserResponse = await fetch(`/api/users/${userId}`, {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              }
-            });
-
-            if (otherUserResponse.ok) {
-              const otherUserData = await otherUserResponse.json();
-              setIsOwnProfile(currentUserData.id === otherUserData.id);
-              setProfile({
-                id: otherUserData.id,
-                firstName: otherUserData.first_name,
-                lastName: otherUserData.last_name,
-                email: otherUserData.email,
-                nickname: otherUserData.nickname?.String || '',
-                dateOfBirth: otherUserData.date_of_birth,
-                aboutMe: otherUserData.about_me,
-                avatarUrl: otherUserData.avatar?.replace('./uploads', '/uploads')
-              });
-              setPosts(otherUserData.posts || []);
-              setPrivacy(otherUserData.is_public ? "public" : "private");
-              
-              // Check if current user is following this profile
-              // You'll need to implement this API endpoint
-              const followCheckResponse = await fetch(`/api/users/${userId}/follow-status`, {
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json'
-                }
-              });
-              
-              if (followCheckResponse.ok) {
-                const followStatus = await followCheckResponse.json();
-                setIsFollowing(followStatus.isFollowing);
-              }
-            } else {
-              throw new Error('User not found');
-            }
-          }
+        if (!userId) {
+          // Own profile
+          setIsOwnProfile(true);
+          setProfile({
+            id: currentUserData.id,
+            firstName: currentUserData.first_name,
+            lastName: currentUserData.last_name,
+            email: currentUserData.email,
+            nickname: currentUserData.nickname?.String || '',
+            dateOfBirth: currentUserData.date_of_birth,
+            aboutMe: currentUserData.about_me,
+            avatarUrl: currentUserData.avatar?.replace('./uploads', '/uploads')
+          });
+          setPosts(currentUserData.posts || []);
+          setPrivacy(currentUserData.is_public ? "public" : "private");
         } else {
-          if (currentUserResponse.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('isLoggedIn');
-            router.replace('/login');
-            return;
+          // Other user's profile
+          const otherUserData = await fetchJSON(`/api/profile/${userId}`, { headers });
+          console.log(otherUserData, "other data ");
+          
+          setIsOwnProfile(currentUserData.id === otherUserData.id);
+          setProfile({
+            id: otherUserData.id,
+            firstName: otherUserData.first_name,
+            lastName: otherUserData.last_name,
+            email: otherUserData.email,
+            nickname: otherUserData.nickname?.String || '',
+            dateOfBirth: otherUserData.date_of_birth,
+            aboutMe: otherUserData.about_me,
+            avatarUrl: otherUserData.avatar?.replace('./uploads', '/uploads')
+          });
+          setPosts(otherUserData.posts || []);
+          setPrivacy(otherUserData.is_public ? "public" : "private");
+
+          // Check follow status
+          try {
+            // const followStatus = await fetchJSON(`/api/users/${userId}/follow-status`, { headers });
+            // setIsFollowing(followStatus.isFollowing);
+          } catch (followError) {
+            console.warn("Could not fetch follow status:", followError);
+            setIsFollowing(false);
           }
-          throw new Error('Failed to fetch profile');
         }
 
-        // Fetch followers and following (you'll need to implement these endpoints)
-        setFollowers([]); // Replace with actual API call
-        setFollowing([]); // Replace with actual API call
+        // TODO: Replace with actual API calls for followers and following
+        setFollowers([]); 
+        setFollowing([]);
         
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-        setError(error.message || 'Failed to load profile. Please try again later.');
+      } catch (err) {
+        if (err.message.includes('401')) {
+          // Unauthorized
+          localStorage.removeItem('token');
+          localStorage.removeItem('isLoggedIn');
+          router.replace('/login');
+          return;
+        }
+        console.error("Error fetching profile:", err);
+        setError(err.message || 'Failed to load profile. Please try again later.');
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchProfile();
-  }, [userId]);
+  }, [userId, router]);
 
   const handleFollow = async () => {
     try {
@@ -152,7 +145,7 @@ export default function ProfilePage() {
       if (response.ok) {
         setIsFollowing(!isFollowing);
         setMessage(isFollowing ? "Unfollowed successfully!" : "Following successfully!");
-        
+
         // Update followers count
         setFollowers(prev => 
           isFollowing 
@@ -171,8 +164,7 @@ export default function ProfilePage() {
   };
 
   const handleSendMessage = () => {
-    // Navigate to messaging page or open message modal
-    router.push(`/messages?user=${profile.id}`);
+    router.push(`/chat?user=${profile.id}`);
   };
 
   const handleEditProfile = () => {

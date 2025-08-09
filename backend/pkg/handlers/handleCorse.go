@@ -15,8 +15,31 @@ func HandleCORS(next http.HandlerFunc) http.HandlerFunc {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		next.ServeHTTP(w, r)
+
+		// Wrap the ResponseWriter to ensure content type is set
+		wrappedWriter := &responseWriter{ResponseWriter: w}
+		next.ServeHTTP(wrappedWriter, r)
 	})
+}
+
+type responseWriter struct {
+	http.ResponseWriter
+	wroteHeader bool
+}
+
+func (w *responseWriter) WriteHeader(code int) {
+	if !w.wroteHeader {
+		w.Header().Set("Content-Type", "application/json")
+		w.wroteHeader = true
+	}
+	w.ResponseWriter.WriteHeader(code)
+}
+
+func (w *responseWriter) Write(b []byte) (int, error) {
+	if !w.wroteHeader {
+		w.WriteHeader(http.StatusOK)
+	}
+	return w.ResponseWriter.Write(b)
 }
 
 func HandleCORSHandler(next http.Handler) http.Handler {

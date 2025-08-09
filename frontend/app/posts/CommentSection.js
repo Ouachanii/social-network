@@ -147,7 +147,7 @@ export function CommentSection({ postId, onCommentAdded }) {
                     />
                     <div className={styles.commentActions}>
                         <label htmlFor={`image-upload-${postId}`} className={styles.imageUploadButton}>
-                            📷
+                            <i className="fa-solid fa-image" style={{color: '#9b4ef3ff'}}></i>
                             <input
                                 id={`image-upload-${postId}`}
                                 type="file"
