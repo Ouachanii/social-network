@@ -1,36 +1,95 @@
 "use client";
-import { useState } from "react";
-import "../styles/chat.css"; // Assuming you have a CSS file for styling
+import React, { useState, useEffect, useRef } from "react";
+import "../styles/chat.css";
 import UserProfile from "../components/UserProfile";
 
 const ChatPage = () => {
   const [messages, setMessages] = useState([
-    { id: 1, text: "Hey! How's everyone doing today?", sender: "Alice", time: "2:30 PM", isOwn: false },
-    { id: 2, text: "Great! Just finished working on a new project", sender: "You", time: "2:32 PM", isOwn: true },
-    { id: 3, text: "That sounds awesome! What kind of project?", sender: "Bob", time: "2:33 PM", isOwn: false },
-    { id: 4, text: "A social networking app with real-time chat!", sender: "You", time: "2:35 PM", isOwn: true },
+    // initial dummy messages, optional
   ]);
   const [input, setInput] = useState("");
+  const ws = useRef(null); // hold websocket instance
+
+  // Replace this with actual userId (maybe from auth or route param)
+  const userId = "14"; 
+  // Replace this with the other user's ID you want to chat with
+  const otherUserId = "7";
+
+  useEffect(() => {
+    // Connect to your WebSocket server with the userId as a query param
+    ws.current = new WebSocket(`ws://localhost:8080/ws?userid=${userId}`);
+
+    ws.current.onopen = () => {
+      console.log("WebSocket connected");
+    };
+
+    ws.current.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      console.log("Received:", msg);
+
+      // Only handle user messages here
+      if (msg.Type === "messageuser" && msg.Sender && msg.Content) {
+        // Add new incoming message to the list
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            id: prevMessages.length + 1,
+            text: msg.Content,
+            sender: msg.Sender,
+            time: msg.Timestamp,
+            isOwn: msg.Sender === userId,
+          },
+        ]);
+      }
+    };
+
+    ws.current.onclose = () => {
+      console.log("WebSocket disconnected");
+    };
+
+    ws.current.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    // Clean up on unmount
+    return () => {
+      ws.current.close();
+    };
+  }, [userId]);
 
   const sendMessage = () => {
-    if (input.trim()) {
-      const newMessage = {
-        id: messages.length + 1,
-        text: input,
-        sender: "You",
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isOwn: true
+    if (input.trim() && ws.current && ws.current.readyState === WebSocket.OPEN) {
+      // Construct message in the format your Go backend expects
+      const msg = {
+        Type: "messageuser",
+        Sender: userId,
+        Receivers: [otherUserId],
+        Content: input,
+        Groupid: 0,
+        Notificationid: 0,
+        Offset: 0,
+        Timestamp: new Date().toISOString(),
       };
-      setMessages([...messages, newMessage]);
+
+      // Send message as JSON string
+      ws.current.send(JSON.stringify(msg));
+
+      // Optimistically add message to UI
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: prev.length + 1,
+          text: input,
+          sender: "You",
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isOwn: true,
+        },
+      ]);
+
       setInput("");
     }
   };
 
-  // const handleKeyPress = (e: React.KeyboardEvent) => {
-  //   if (e.key === 'Enter') {
-  //     sendMessage();
-  //   }
-  // };
   return (
     <div className="main-chat">
       <div className="chat-container">
@@ -43,21 +102,14 @@ const ChatPage = () => {
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`chat-message ${msg.isOwn ? 'own' : 'other'}`}
+              className={`chat-message ${msg.isOwn ? "own" : "other"}`}
             >
               <div className="chat-message-content">
                 <div className="chat-message-bubble">
-                  {!msg.isOwn && (
-                    <p className="chat-message-sender">{msg.sender}</p>
-                  )}
+                  {!msg.isOwn && <p className="chat-message-sender">{msg.sender}</p>}
                   <p>{msg.text}</p>
                 </div>
-                <p className="chat-message-time">
-                  {msg.time}
-                </p>
-              </div>
-              <div className="chat-message-avatar">
-                {/* <User className="chat-message-avatar-icon" /> */}
+                <p className="chat-message-time">{msg.time}</p>
               </div>
             </div>
           ))}
@@ -68,26 +120,25 @@ const ChatPage = () => {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              // onKeyPress={handleKeyPress}
               placeholder="Type a message..."
               className="chat-input"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  sendMessage();
+                }
+              }}
             />
-            <button
-              onClick={sendMessage}
-              className="chat-send-button"
-            >
-              {/* <Send className="chat-send-icon" /> */}
+            <button onClick={sendMessage} className="chat-send-button">
+              Send
             </button>
-
           </div>
         </div>
       </div>
       <UserProfile />
     </div>
-
   );
 };
-export default ChatPage;
+ export default ChatPage;
 
 
 
