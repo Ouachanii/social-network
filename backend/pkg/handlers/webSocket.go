@@ -82,11 +82,12 @@ func (h *Hub) dispatchMessage(msg Message) {
 	msg.Timestamp = time.Now().Format("2006-01-02 15:04:05")
 
 	switch msg.Type {
-	case "messageuser", "notification":
-		if len(msg.Receivers) == 0 {
-			return
-		}
+	case "messageuser":
+		// if len(msg.Receivers) == 0 {
+		// 	return
+		// }
 		receiverID := msg.Receivers[0]
+		fmt.Println(receiverID,"fferrfer")
 		if conns, ok := h.userConnections[receiverID]; ok {
 			for conn := range conns {
 				conn.WriteJSON(msg)
@@ -142,7 +143,7 @@ func HandleWebSocket(h *Hub, w http.ResponseWriter, r *http.Request) {
 			})
 			continue
 		}
-		fmt.Println(msg)
+		fmt.Println(msg.Receivers)
 		h.messageChan <- msg
 	}
 }
