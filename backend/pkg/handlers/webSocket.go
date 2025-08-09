@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -115,7 +116,7 @@ func HandleWebSocket(h *Hub, w http.ResponseWriter, r *http.Request) {
 	if userID == "" {
 		userID = "guest" // fallback for demo
 	}
-
+	// fmt.Println("here",)
 	client := &Connection{
 		Conn:   conn,
 		UserID: userID,
@@ -141,7 +142,7 @@ func HandleWebSocket(h *Hub, w http.ResponseWriter, r *http.Request) {
 			})
 			continue
 		}
-
+		fmt.Println(msg)
 		h.messageChan <- msg
 	}
 }
