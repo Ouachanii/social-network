@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./style.module.css";
 import Link from "next/link";
+import { encodeID, encryptForUrl } from "../chat/page";
 
 export default function FollowersPage() {
   const [users, setUsers] = useState([]);
@@ -9,8 +10,8 @@ export default function FollowersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
   const [followingUsers, setFollowingUsers] = useState(new Set());
-
   // Mock data for demonstration
+  
   const mockUsers = [
 
     { 
@@ -87,7 +88,6 @@ export default function FollowersPage() {
       console.error("Error following user:", error);
     }
   };
-
   const handleUnfollow = async (userId) => {
     const token = localStorage.getItem('token');
     
@@ -152,6 +152,7 @@ export default function FollowersPage() {
       </div>
     );
   }
+ 
 
   return (
     <div className={styles.container}>
@@ -233,13 +234,14 @@ export default function FollowersPage() {
                 {/* Avatar and Basic Info */}
                 <div className={styles.userHeader}>
                   <div className={styles.avatarContainer}>
-                    <Link href={`/profile/${user.id}`}>
+                     <Link href={`/profile/${user.id}`}>
                     <img
                       src={user.avatar || `https://ui-avatars.com/api/?name=${user.nickname}&background=a855f7&color=fff&size=150`}
                       alt={user.nickname}
                       className={styles.avatar}
                     />
                     </Link>
+                    {/* <p>{encryptForUrl(user.id, secretKey) }*************************</p> */}
                     {followingUsers.has(user.id) && (
                       <div className={styles.followingBadge}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">

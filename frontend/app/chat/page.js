@@ -1,22 +1,34 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation"; // Next.js router hook for query params
 import "../styles/chat.css";
 import UserProfile from "../components/UserProfile";
 
 const ChatPage = () => {
-  const [messages, setMessages] = useState([
-    // initial dummy messages, optional
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const ws = useRef(null); // hold websocket instance
+  const ws = useRef(null);
 
-  // Replace this with actual userId (maybe from auth or route param)
-  const userId = "14"; 
-  // Replace this with the other user's ID you want to chat with
-  const otherUserId = "7";
+  const searchParams = useSearchParams();
+  const otherUserId = searchParams.get("user");
+
+  const [userId, setUserId] = useState(null);
+
+  // Get userId from localStorage or another dynamic source
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      // Optionally, handle no userId case, e.g., redirect to login
+      console.warn("No userId found in localStorage");
+    }
+  }, []);
+console.log(userId, "user" ,otherUserId, "otherUserId");
 
   useEffect(() => {
-    // Connect to your WebSocket server with the userId as a query param
+    if (!userId) return; // Wait for userId before connecting
+
     ws.current = new WebSocket(`ws://localhost:8080/ws?userid=${userId}`);
 
     ws.current.onopen = () => {
@@ -24,22 +36,24 @@ const ChatPage = () => {
     };
 
     ws.current.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      console.log("Received:", msg);
+      try {
+        const msg = JSON.parse(event.data);
+        console.log("Received:", msg);
 
-      // Only handle user messages here
-      if (msg.Type === "messageuser" && msg.Sender && msg.Content) {
-        // Add new incoming message to the list
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            id: prevMessages.length + 1,
-            text: msg.Content,
-            sender: msg.Sender,
-            time: msg.Timestamp,
-            isOwn: msg.Sender === userId,
-          },
-        ]);
+        if (msg.type === "messageuser" && msg.sender && msg.content) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              id: prevMessages.length + 1,
+              text: msg.content,
+              sender: msg.sender,
+              time: msg.timestamp,
+              isOwn: msg.sender === userId,
+            },
+          ]);
+        }
+      } catch (err) {
+        console.error("Failed to parse WebSocket message:", err);
       }
     };
 
@@ -51,37 +65,41 @@ const ChatPage = () => {
       console.error("WebSocket error:", error);
     };
 
-    // Clean up on unmount
     return () => {
-      ws.current.close();
+      if (ws.current) {
+        ws.current.close();
+      }
     };
   }, [userId]);
 
   const sendMessage = () => {
+    console.log(otherUserId, "herrerre");
+    
+    if (!otherUserId) {
+      alert("No receiver specified in URL!");
+      return;
+    }
     if (input.trim() && ws.current && ws.current.readyState === WebSocket.OPEN) {
-      // Construct message in the format your Go backend expects
       const msg = {
-        Type: "messageuser",
-        Sender: userId,
-        Receivers: [otherUserId],
-        Content: input,
-        Groupid: 0,
-        Notificationid: 0,
-        Offset: 0,
-        Timestamp: new Date().toISOString(),
+        type: "messageuser",
+        sender: userId,
+        receiver: [otherUserId],
+        content: input,
+        groupid: 0,
+        notificationid: 0,
+        offset: 0,
+        timestamp: new Date().toISOString(),
       };
 
-      // Send message as JSON string
       ws.current.send(JSON.stringify(msg));
 
-      // Optimistically add message to UI
       setMessages((prev) => [
         ...prev,
         {
           id: prev.length + 1,
           text: input,
           sender: "You",
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
           isOwn: true,
         },
       ]);
@@ -100,10 +118,7 @@ const ChatPage = () => {
 
         <div className="chat-messages">
           {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`chat-message ${msg.isOwn ? "own" : "other"}`}
-            >
+            <div key={msg.id} className={`chat-message ${msg.isOwn ? "own" : "other"}`}>
               <div className="chat-message-content">
                 <div className="chat-message-bubble">
                   {!msg.isOwn && <p className="chat-message-sender">{msg.sender}</p>}
@@ -138,52 +153,5 @@ const ChatPage = () => {
     </div>
   );
 };
- export default ChatPage;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useEffect, useRef, useState } from "react";
-
-// export default function ChatPage() {
-//   const [messages, setMessages] = useState([]);
-//   const [input, setInput] = useState("");
-//   const ws = useRef(null);
-
-//   useEffect(() => {
-//     ws.current = new WebSocket("ws://localhost:8080/ws");
-//     ws.current.onmessage = (event) => {
-//       setMessages((prev) => [...prev, event.data]);
-//     };
-//     return () => ws.current.close();
-//   }, []);
-
-//   const sendMessage = () => {
-//     ws.current.send(input);
-//     setInput("");
-//   };
-
-//   return (
-//     <div className="chat-page">
-//       <h2>Chat</h2>
-//       <div className="messages">
-//         {messages.map((msg, i) => (
-//           <div key={i}>{msg}</div>
-//         ))}
-//       </div>
-//       <input value={input} onChange={e => setInput(e.target.value)} placeholder="Type a message..." />
-//       <button onClick={sendMessage}>Send</button>
-//     </div>
-//   );
-// }
+export default ChatPage;

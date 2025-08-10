@@ -24,6 +24,7 @@ type Message struct {
 	Notificationid int      `json:"notificationid"`
 	Offset         int      `json:"offset"`
 	Timestamp      string   `json:"timestamp"`
+	
 }
 type Connection struct {
 	Conn   *websocket.Conn
@@ -83,9 +84,9 @@ func (h *Hub) dispatchMessage(msg Message) {
 
 	switch msg.Type {
 	case "messageuser":
-		// if len(msg.Receivers) == 0 {
-		// 	return
-		// }
+		 if len(msg.Receivers) == 0 {
+		 	return
+		}
 		receiverID := msg.Receivers[0]
 		fmt.Println(receiverID,"fferrfer")
 		if conns, ok := h.userConnections[receiverID]; ok {
@@ -93,6 +94,8 @@ func (h *Hub) dispatchMessage(msg Message) {
 				conn.WriteJSON(msg)
 			}
 		}
+		fmt.Println(msg,"meesaage")
+
 	case "messageGroup":
 		for _, receiverID := range msg.Receivers {
 			if conns, ok := h.userConnections[receiverID]; ok {
