@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import styles from '../styles/create-post.module.css';
 import { useUser } from '../context/UserContext';
+import UserProfile from '../components/UserProfile';
 
 export function CreatePost({ onPostCreated, groupId }) {
   const { user } = useUser();
@@ -146,6 +147,7 @@ export function CreatePost({ onPostCreated, groupId }) {
           </button>
         </div>
       </form>
+          {/* <UserProfile /> */}
     </div>
   );
 }

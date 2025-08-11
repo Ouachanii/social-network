@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -23,6 +24,7 @@ type Message struct {
 	Notificationid int      `json:"notificationid"`
 	Offset         int      `json:"offset"`
 	Timestamp      string   `json:"timestamp"`
+	
 }
 type Connection struct {
 	Conn   *websocket.Conn
@@ -81,16 +83,19 @@ func (h *Hub) dispatchMessage(msg Message) {
 	msg.Timestamp = time.Now().Format("2006-01-02 15:04:05")
 
 	switch msg.Type {
-	case "messageuser", "notification":
-		if len(msg.Receivers) == 0 {
-			return
+	case "messageuser":
+		 if len(msg.Receivers) == 0 {
+		 	return
 		}
 		receiverID := msg.Receivers[0]
+		fmt.Println(receiverID,"fferrfer")
 		if conns, ok := h.userConnections[receiverID]; ok {
 			for conn := range conns {
 				conn.WriteJSON(msg)
 			}
 		}
+		fmt.Println(msg,"meesaage")
+
 	case "messageGroup":
 		for _, receiverID := range msg.Receivers {
 			if conns, ok := h.userConnections[receiverID]; ok {
@@ -115,7 +120,7 @@ func HandleWebSocket(h *Hub, w http.ResponseWriter, r *http.Request) {
 	if userID == "" {
 		userID = "guest" // fallback for demo
 	}
-
+	// fmt.Println("here",)
 	client := &Connection{
 		Conn:   conn,
 		UserID: userID,
@@ -141,7 +146,7 @@ func HandleWebSocket(h *Hub, w http.ResponseWriter, r *http.Request) {
 			})
 			continue
 		}
-
+		fmt.Println(msg.Receivers)
 		h.messageChan <- msg
 	}
 }

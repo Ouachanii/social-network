@@ -67,6 +67,7 @@ func main() {
 	http.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
 
 	http.HandleFunc("/", handlers.HomeHandler)
+	// http.HandleFunc("/", handlers.HomeHandler)
 
 	handlers.InitGroupChatHub()
 
