@@ -20,7 +20,7 @@ func init() {
 func main() {
 	fmt.Println("server started at: http://localhost:8080")
 
-	dbConn, err := sql.Open("sqlite3", "./social_network.db")
+	dbConn, err := sql.Open("sqlite3", "./database.db")
 	if err != nil {
 		panic(err)
 	}

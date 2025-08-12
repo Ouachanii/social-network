@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -11,7 +12,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var DB *sql.DB 
+var DB *sql.DB
+
 func InitDB(db *sql.DB) {
 	DB = db
 }
@@ -103,7 +105,7 @@ func (h *Hub) dispatchMessage(msg Message) {
 			return
 		}
 		receiverID := msg.Receivers[0]
-
+		fmt.Println(msg.Sender, receiverID, msg.Content, msg.Timestamp)
 		SaveMessage(msg.Sender, receiverID, msg.Content, msg.Timestamp)
 
 		if conns, ok := h.userConnections[receiverID]; ok {
