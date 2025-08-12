@@ -1,10 +1,12 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strings"
 
+	_ "github.com/mattn/go-sqlite3"
 	"social-network/pkg/db/sqlite"
 	"social-network/pkg/handlers"
 	"social-network/pkg/models"
@@ -18,17 +20,24 @@ func init() {
 func main() {
 	fmt.Println("server started at: http://localhost:8080")
 
+	dbConn, err := sql.Open("sqlite3", "./social_network.db")
+	if err != nil {
+		panic(err)
+	}
+	handlers.InitDB(dbConn)
+
+	// 🛠 APIs
 	http.HandleFunc("/api/register", handlers.HandleCORS(handlers.Register))
 	http.HandleFunc("/api/login", handlers.HandleCORS(handlers.Login))
 	http.HandleFunc("/api/logout", handlers.HandleCORS(handlers.TokenMiddleware(handlers.Logout)))
 	http.HandleFunc("/api/user", handlers.HandleCORS(handlers.TokenMiddleware(handlers.CurrentUserHandler)))
 	http.HandleFunc("/api/users", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GetAllUsersHandler)))
-	http.HandleFunc("/api/profile", handlers.HandleCORS(handlers.TokenMiddleware(handlers.ProfileHandler)))  // Handle /api/profile
-	http.HandleFunc("/api/profile/", handlers.HandleCORS(handlers.TokenMiddleware(handlers.ProfileHandler))) // Handle /api/profile/
+	http.HandleFunc("/api/profile", handlers.HandleCORS(handlers.TokenMiddleware(handlers.ProfileHandler)))
+	http.HandleFunc("/api/profile/", handlers.HandleCORS(handlers.TokenMiddleware(handlers.ProfileHandler)))
 	http.HandleFunc("/api/profile/about-me", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UpdateAboutMeHandler)))
 
 	http.HandleFunc("/api/privacy/update", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UpdatePrivacy)))
-	http.HandleFunc("/api/follow/{userID}", handlers.HandleCORS(handlers.TokenMiddleware(handlers.FollowUser))) // 1-need send notification func with ws | 2- need handling this cases: *when user follow himself  *when user follow a user already follower (follow the same follower 2 times)
+	http.HandleFunc("/api/follow/{userID}", handlers.HandleCORS(handlers.TokenMiddleware(handlers.FollowUser)))
 	http.HandleFunc("/api/followResponse", handlers.HandleCORS(handlers.TokenMiddleware(handlers.FollowResponse)))
 
 	http.HandleFunc("/api/posts", handlers.HandleCORS(handlers.TokenMiddleware(handlers.PostsHandler)))
@@ -36,6 +45,7 @@ func main() {
 	http.HandleFunc("/api/upload/avatar", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UploadAvatar)))
 	http.HandleFunc("/api/upload/post-image", handlers.HandleCORS(handlers.TokenMiddleware(handlers.UploadPostImage)))
 
+	// 🛠 WebSocket Hub
 	hub := handlers.NewHub()
 	go hub.Run()
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
@@ -43,6 +53,9 @@ func main() {
 	})
 	http.HandleFunc("/ws/group", handlers.GroupChatWebSocket)
 
+	http.HandleFunc("/api/messages", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GetMessages)))
+
+	// Groups
 	http.HandleFunc("/api/groups", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupsHandler)))
 	http.HandleFunc("/api/groups/invite", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupInviteHandler)))
 	http.HandleFunc("/api/groups/invitation/response", handlers.HandleCORS(handlers.TokenMiddleware(handlers.GroupInvitationResponseHandler)))
@@ -67,7 +80,6 @@ func main() {
 	http.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
 
 	http.HandleFunc("/", handlers.HomeHandler)
-	// http.HandleFunc("/", handlers.HomeHandler)
 
 	handlers.InitGroupChatHub()
 

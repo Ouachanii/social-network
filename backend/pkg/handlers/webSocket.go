@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -11,8 +11,9 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true },
+var DB *sql.DB 
+func InitDB(db *sql.DB) {
+	DB = db
 }
 
 type Message struct {
@@ -24,8 +25,8 @@ type Message struct {
 	Notificationid int      `json:"notificationid"`
 	Offset         int      `json:"offset"`
 	Timestamp      string   `json:"timestamp"`
-	
 }
+
 type Connection struct {
 	Conn   *websocket.Conn
 	UserID string
@@ -37,6 +38,10 @@ type Hub struct {
 	register        chan *Connection
 	unregister      chan *Connection
 	mu              sync.Mutex
+}
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
 func NewHub() *Hub {
@@ -76,6 +81,16 @@ func (h *Hub) Run() {
 	}
 }
 
+func SaveMessage(sender, receiver, content, timestamp string) error {
+	_, err := DB.Exec(`
+        INSERT INTO messages (sender_id, receiver_id, content, timestamp)
+        VALUES (?, ?, ?, ?)`, sender, receiver, content, timestamp)
+	if err != nil {
+		log.Println("Error saving message:", err)
+	}
+	return err
+}
+
 func (h *Hub) dispatchMessage(msg Message) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -84,20 +99,22 @@ func (h *Hub) dispatchMessage(msg Message) {
 
 	switch msg.Type {
 	case "messageuser":
-		 if len(msg.Receivers) == 0 {
-		 	return
+		if len(msg.Receivers) == 0 {
+			return
 		}
 		receiverID := msg.Receivers[0]
-		fmt.Println(receiverID,"fferrfer")
+
+		SaveMessage(msg.Sender, receiverID, msg.Content, msg.Timestamp)
+
 		if conns, ok := h.userConnections[receiverID]; ok {
 			for conn := range conns {
 				conn.WriteJSON(msg)
 			}
 		}
-		fmt.Println(msg,"meesaage")
 
 	case "messageGroup":
 		for _, receiverID := range msg.Receivers {
+			SaveMessage(msg.Sender, receiverID, msg.Content, msg.Timestamp)
 			if conns, ok := h.userConnections[receiverID]; ok {
 				for conn := range conns {
 					conn.WriteJSON(msg)
@@ -118,9 +135,9 @@ func HandleWebSocket(h *Hub, w http.ResponseWriter, r *http.Request) {
 
 	userID := r.URL.Query().Get("userid")
 	if userID == "" {
-		userID = "guest" // fallback for demo
+		userID = "guest"
 	}
-	// fmt.Println("here",)
+
 	client := &Connection{
 		Conn:   conn,
 		UserID: userID,
@@ -146,7 +163,6 @@ func HandleWebSocket(h *Hub, w http.ResponseWriter, r *http.Request) {
 			})
 			continue
 		}
-		fmt.Println(msg.Receivers)
 		h.messageChan <- msg
 	}
 }
