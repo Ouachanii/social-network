@@ -1,0 +1,321 @@
+.followersPage {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  background-color: var(--background-primary);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: var(--background-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.header h1 {
+  margin: 0 0 10px 0;
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 10px;
+}
+
+.stats span {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  background: var(--background-primary);
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tab {
+  padding: 16px 24px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: #1877f2;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: default;
+  transition: all 0.2s ease;
+  min-width: 140px;
+  position: relative;
+}
+
+.tab:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.tab.active {
+  background: transparent;
+  color: #1877f2;
+  border-color: transparent;
+}
+
+.tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #1877f2;
+}
+
+.content {
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  overflow: hidden;
+}
+
+.section {
+  padding: 0;
+}
+
+.section h2 {
+  margin: 0 0 16px 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.usersList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+.userItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  background: var(--background-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.userItem {
+  cursor: pointer;
+}
+
+.userItem:hover {
+  background: var(--background-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.userAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--border-color);
+}
+
+.userAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.defaultAvatar {
+  width: 100%;
+  height: 100%;
+  background: #9b4ef3;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+}
+
+.userDetails {
+  width: 100%;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.userInfo span:last-child {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: block;
+}
+
+.followButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.followButton {
+  background: #1877f2;
+  color: white;
+}
+
+.followButton:hover {
+  background: #166fe5;
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+
+.emptyMessage i {
+  font-size: 48px;
+  color: #9b4ef3;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.emptyMessage p {
+  font-size: 16px;
+  margin: 0;
+  font-style: italic;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 2rem;
+  text-align: center;
+}
+
+.loadingSpinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--border-color);
+  border-top: 4px solid #9b4ef3;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .followersPage {
+    padding: 10px;
+  }
+  
+  .header {
+    padding: 15px;
+  }
+  
+  .header h1 {
+    font-size: 24px;
+  }
+  
+  .stats {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .tabs {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .tab {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .userItem {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .userInfo {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .followButton, .unfollowButton {
+    width: 100%;
+    max-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 20px;
+  }
+  
+  .stats span {
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+  
+  .tab {
+    font-size: 12px;
+    padding: 10px 16px;
+  }
+  
+  .userAvatar {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .userName {
+    font-size: 14px;
+  }
+}

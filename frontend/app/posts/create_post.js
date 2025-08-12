@@ -1,8 +1,12 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from '../styles/create-post.module.css';
+import { useUser } from '../context/UserContext';
+import { getAvatarUrl, hasAvatar } from '../utils/avatarUtils';
 
-export function CreatePost({ onPostCreated, groupId, avatarUrl }) {
+export function CreatePost({ onPostCreated, groupId, user: propUser }) {
+  const { user: contextUser } = useUser();
+  const user = propUser || contextUser;
   const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
   const [privacy, setPrivacy] = useState('public');
@@ -30,7 +34,7 @@ export function CreatePost({ onPostCreated, groupId, avatarUrl }) {
         formData.append('image', image);
       }
 
-      const response = await fetch('http://localhost:8080/api/posts', {
+      const response = await fetch('/api/posts', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -58,19 +62,31 @@ export function CreatePost({ onPostCreated, groupId, avatarUrl }) {
     }
   };
 
+
+  
+
+
   return (
     <div className={styles.createPost}>
       <form onSubmit={handleSubmit}>
         <div className={styles.userInput}>
-          <div className={styles.avatar}>
-            <img
-              src={avatarUrl || '/default-avatar.jpg'}
-              alt={'User Avatar'}
-              className={styles.authorAvatar}
-              onError={(e) => {
-                console.log('Avatar image failed to load:', e.target.src);
-              }}
-            />
+          <div className={styles.Authoravatar}>
+            {user && hasAvatar(user.avatar) ? (
+              <img
+                src={getAvatarUrl(user.avatar)}
+                alt={'User Avatar'}
+                className={styles.authorAvatar}
+                onError={(e) => {
+                  e.target.onerror = null; 
+                  e.target.style.display = 'none';
+                  // Show default avatar when image fails to load
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+            ) : null}
+            <div className={styles.defaultAvatar} style={{ display: user && hasAvatar(user.avatar) ? 'none' : 'flex' }}>
+              <i className="fa-solid fa-user" style={{color: '#9b4ef3ff'}}></i>
+            </div>
           </div>
           <textarea
             value={content}
@@ -102,7 +118,9 @@ export function CreatePost({ onPostCreated, groupId, avatarUrl }) {
             <span className={styles.addToPostText}>Add to your post</span>
             <div className={styles.postButtons}>
               <label className={styles.mediaButton}>
-                <span role="img" aria-label="Add Photo">🖼️</span>
+                <span role="img" aria-label="Add Photo">
+                  <i className="fa-solid fa-image" style={{color: '#9b4ef3ff'}}></i>
+                </span>
                 Photo
                 <input
                   type="file"

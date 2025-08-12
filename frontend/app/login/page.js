@@ -2,7 +2,6 @@
 import styles from "@/app/styles/auth.module.css";
 import { LinkButton } from "../link_button";
 import { useState } from "react";
-import { ErrorFormMessage } from "../posts/error_form";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
@@ -10,16 +9,13 @@ export default function Login() {
     login: "",
     password: "",
   });
-  const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e) => {
-    setErrorMessage("");
-
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:8080/api/login", {
+      const response = await fetch("/api/login", {
         method: "POST",
         body: JSON.stringify(formInputs),
         credentials: "include",
@@ -28,8 +24,8 @@ export default function Login() {
       if (!response.ok) {
         const errorData = await response.json();
         if (response.status === 400) {
-          console.log(errorData);
-          setErrorMessage(errorData.error_message);
+          // console.log(errorData);
+          alert(errorData.error_message);
         } else {
           if (errorData.message) {
             alert(errorData.error_message);
@@ -40,9 +36,24 @@ export default function Login() {
       } else {
         const result = await response.json();
         if (result.token) {
-          localStorage.setItem('token', result.token);
-          localStorage.setItem('isLoggedIn', 'true');
-          router.push("/");
+          // Decode the token to get the user ID
+          let userId = null;
+          try {
+            const payload = JSON.parse(atob(result.token.split('.')[1]));
+            userId = payload.id; // Assuming the payload has an 'id' field
+          } catch (e) {
+            console.error("Failed to decode token", e);
+            throw new Error("Invalid token received");
+          }
+
+          if (userId !== null) {
+            localStorage.setItem('token', result.token);
+            localStorage.setItem('userId', userId);
+            localStorage.setItem('isLoggedIn', 'true');
+            router.push("/"); // Redirect to home page
+          } else {
+            throw new Error("Could not extract userId from token");
+          }
         } else {
           throw new Error("No token received");
         }
@@ -53,23 +64,23 @@ export default function Login() {
   };
 
   return (
-    <main>
-      <h1 className={styles.title}>Welcome to our Social Network App!</h1>
+    <main className={styles.authMain}>
+      <h1 className={styles.title}>Social Network</h1>
       <div className={styles.main_container}>
         <form className={styles.login} id="login_form" onSubmit={handleSubmit}>
           <div className={styles.header}>
-            <h1>Login</h1>
-            <h3>Please enter your information</h3>
+            <h1>Log in to Social Network</h1>
           </div>
 
           <div className={styles.body}>
             <div className={styles.container}>
-              <div className={styles.login}>
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldLabel}>Email or Username</label>
                 <input
                   id="login"
                   type="text"
                   name="login"
-                  placeholder="user-name/email."
+                  placeholder="Enter your email or username"
                   required
                   value={formInputs.login}
                   onChange={(e) =>
@@ -77,12 +88,13 @@ export default function Login() {
                   }
                 />
               </div>
-              <div className={styles.password}>
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldLabel}>Password</label>
                 <input
                   id="password"
                   type="password"
                   name="password"
-                  placeholder="password."
+                  placeholder="Enter your password"
                   required
                   value={formInputs.password}
                   onChange={(e) =>
@@ -92,7 +104,10 @@ export default function Login() {
               </div>
               <div className={styles.submit}>
                 <button className={styles.button1} type="submit">
-                  Login
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                  Log in
                 </button>
               </div>
             </div>
@@ -101,7 +116,6 @@ export default function Login() {
           <div className={styles.footer}>
             <div className={styles.container}>
               <LinkButton Link="/register" TextContent="Create New Account" />
-              <ErrorFormMessage Message={errorMessage} />
             </div>
           </div>
         </form>

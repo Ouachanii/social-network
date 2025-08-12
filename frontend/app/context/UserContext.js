@@ -18,7 +18,7 @@ export function UserProvider({ children }) {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/api/profile/", {
+      const response = await fetch("http://localhost:8080/api/profile", {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 

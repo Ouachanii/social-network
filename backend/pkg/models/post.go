@@ -192,54 +192,6 @@ func (db *DB) GetGroupPosts(groupID, userID int, offset int) ([]Post, error) {
 	return posts, nil
 }
 
-// GetPostsByUserID retrieves all posts for a specific user
-func (db *DB) GetPostsByUserID(userID int, offset int) ([]Post, error) {
-	query := `
-        SELECT posts.id, posts.user_id, posts.created_at, posts.content, 
-               posts.image_path, posts.privacy, 
-               users.first_name, users.last_name, users.avatar,
-               (SELECT COUNT(*) FROM comments WHERE post_id = posts.id) AS comment_count
-        FROM posts
-        JOIN users ON posts.user_id = users.id
-        WHERE posts.user_id = ? AND posts.group_id = 0
-        ORDER BY posts.id DESC LIMIT 10 OFFSET ?`
-
-	rows, err := db.Db.Query(query, userID, offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var posts []Post
-	for rows.Next() {
-		var post Post
-		var timeCreated time.Time
-		var firstName, lastName string
-
-		var content sql.NullString
-		err := rows.Scan(&post.Pid, &post.Uid, &timeCreated, &content,
-			&post.Image, &post.Privacy, &firstName, &lastName, &post.Avatar, &post.NbComment)
-		if err != nil {
-			return nil, err
-		}
-
-		if content.Valid {
-			post.Content = html.UnescapeString(content.String)
-		} else {
-			post.Content = ""
-		}
-		post.Username = firstName + " " + lastName
-		post.CreatedAt = timeCreated.Format("Jan 2, 2006 at 15:04")
-		post.Likes = db.getPostLikeDisLike(post.Pid)
-		post.Dislikes = db.getPostDislikeCount(post.Pid)
-		post.UserInteraction = db.getPostInteractions(post.Pid, userID)
-
-		posts = append(posts, post)
-	}
-
-	return posts, nil
-}
-
 func (db *DB) GetPost(postID, userID int) (Post, error) {
 	var p Post
 	var timeCreated time.Time
@@ -306,4 +258,112 @@ func (db *DB) InsertOrUpdateLike(userID, postID, likeStatus int) error {
 	`
 	_, err = db.Db.Exec(query, userID, postID, likeStatus)
 	return err
+}
+
+// GetPostsByUserID retrieves all posts for a specific user
+func (db *DB) GetPostsByUserID(userID int, offset int) ([]Post, error) {
+	query := `
+        SELECT posts.id, posts.user_id, posts.created_at, posts.content, 
+               posts.image_path, posts.privacy, 
+               users.first_name, users.last_name, users.avatar,
+               (SELECT COUNT(*) FROM comments WHERE post_id = posts.id) AS comment_count
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+        WHERE posts.user_id = ? AND posts.group_id = 0
+        ORDER BY posts.id DESC LIMIT 10 OFFSET ?`
+
+	rows, err := db.Db.Query(query, userID, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []Post
+	for rows.Next() {
+		var post Post
+		var timeCreated time.Time
+		var firstName, lastName string
+
+		var content sql.NullString
+		err := rows.Scan(&post.Pid, &post.Uid, &timeCreated, &content,
+			&post.Image, &post.Privacy, &firstName, &lastName, &post.Avatar, &post.NbComment)
+		if err != nil {
+			return nil, err
+		}
+
+		if content.Valid {
+			post.Content = html.UnescapeString(content.String)
+		} else {
+			post.Content = ""
+		}
+		post.Username = firstName + " " + lastName
+		post.CreatedAt = timeCreated.Format("Jan 2, 2006 at 15:04")
+		post.Likes = db.getPostLikeDisLike(post.Pid)
+		post.Dislikes = db.getPostDislikeCount(post.Pid)
+		post.UserInteraction = db.getPostInteractions(post.Pid, userID)
+
+		posts = append(posts, post)
+	}
+
+	return posts, nil
+}
+
+// GetUserPosts retrieves posts for a specific user with privacy checks
+func (db *DB) GetUserPosts(userID, currentUserID int) ([]Post, error) {
+	query := `
+        SELECT posts.id, posts.user_id, posts.created_at, posts.content, 
+               posts.image_path, posts.privacy, 
+               users.first_name, users.last_name, users.avatar,
+               (SELECT COUNT(*) FROM comments WHERE post_id = posts.id) AS comment_count
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+        WHERE posts.user_id = ? AND posts.group_id = 0
+        AND (
+            posts.privacy = 'public' 
+            OR posts.user_id = ? 
+            OR (posts.privacy = 'almost_private' AND EXISTS (
+                SELECT 1 FROM follow_requests 
+                WHERE follower_id = ? AND following_id = posts.user_id AND status = 'approved'
+            )) 
+            OR (posts.privacy = 'private' AND EXISTS (
+                SELECT 1 FROM post_privacy_users 
+                WHERE post_id = posts.id AND user_id = ?
+            ))
+        )
+        ORDER BY posts.id DESC`
+
+	rows, err := db.Db.Query(query, userID, currentUserID, currentUserID, currentUserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []Post
+	for rows.Next() {
+		var post Post
+		var timeCreated time.Time
+		var firstName, lastName string
+
+		var content sql.NullString
+		err := rows.Scan(&post.Pid, &post.Uid, &timeCreated, &content,
+			&post.Image, &post.Privacy, &firstName, &lastName, &post.Avatar, &post.NbComment)
+		if err != nil {
+			return nil, err
+		}
+
+		if content.Valid {
+			post.Content = html.UnescapeString(content.String)
+		} else {
+			post.Content = ""
+		}
+		post.Username = firstName + " " + lastName
+		post.CreatedAt = timeCreated.Format("Jan 2, 2006 at 15:04")
+		post.Likes = db.getPostLikeDisLike(post.Pid)
+		post.Dislikes = db.getPostDislikeCount(post.Pid)
+		post.UserInteraction = db.getPostInteractions(post.Pid, currentUserID)
+
+		posts = append(posts, post)
+	}
+
+	return posts, nil
 }

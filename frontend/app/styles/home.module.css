@@ -1,30 +1,19 @@
-/* Base Styles */
-.container {
-  --primary-blue: #3498db;
-  --light-blue: #e1f0fa;
-  --dark-blue: #2980b9;
-  --white: #ffffff;
-  --light-gray: #f5f7fa;
-  --medium-gray: #e2e8f0;
-  --dark-gray: #4a5568;
-  --text-color: #2d3748;
-}
-
 /* Header Styles */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color: var(--white);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: var(--background-secondary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
 .header h1 {
-  color: var(--primary-blue);
+  color: var(--accent-color);
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0;
@@ -35,19 +24,19 @@
   display: grid;
   grid-template-columns: 240px 1fr 300px;
   min-height: calc(100vh - 68px);
-  background-color: var(--light-gray);
+  background-color: var(--background-primary);
 }
 
 /* Sidebar Styles */
 .leftSidebar, .rightSidebar {
   padding: 1.5rem;
-  background-color: var(--white);
-  border-right: 1px solid var(--medium-gray);
+  background-color: var(--background-secondary);
+  border-right: 1px solid var(--border-color);
 }
 
 .rightSidebar {
   border-right: none;
-  border-left: 1px solid var(--medium-gray);
+  border-left: 1px solid var(--border-color);
 }
 
 .sidebarItem {
@@ -56,13 +45,13 @@
   padding: 0.75rem;
   margin-bottom: 0.5rem;
   border-radius: 6px;
-  color: var(--text-color);
+  color: var(--text-primary);
   text-decoration: none;
   transition: background-color 0.2s;
 }
 
 .sidebarItem:hover {
-  background-color: var(--light-blue);
+  background-color: var(--background-primary);
 }
 
 .sidebarIcon {
@@ -77,46 +66,46 @@
 /* Main Content Styles */
 .mainContent {
   padding: 1.5rem;
-  background-color: var(--white);
+  background-color: var(--background-secondary);
 }
 
 .sectionTitle {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--primary-blue);
+  color: var(--accent-color);
   margin-bottom: 1.25rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--medium-gray);
+  border-bottom: 1px solid var(--border-color);
 }
 
 /* Groups Styles */
 .group {
   padding: 1rem;
   margin-bottom: 1rem;
-  background-color: var(--light-gray);
+  background-color: var(--background-primary);
   border-radius: 6px;
-  border: 1px solid var(--medium-gray);
+  border: 1px solid var(--border-color);
 }
 
 .groupTitle {
   font-size: 1rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
-  color: var(--primary-blue);
+  color: var(--accent-color);
 }
 
 .groupDescription {
   font-size: 0.875rem;
   margin: 0;
-  color: var(--dark-gray);
+  color: var(--text-secondary);
 }
 
 /* Logout Button */
 .logoutButton {
   padding: 0.5rem 1rem;
-  background-color: var(--white);
-  color: var(--primary-blue);
-  border: 1px solid var(--primary-blue);
+  background-color: transparent;
+  color: var(--accent-color);
+  border: 1px solid var(--accent-color);
   border-radius: 6px;
   font-weight: 500;
   cursor: pointer;
@@ -124,5 +113,6 @@
 }
 
 .logoutButton:hover {
-  background-color: var(--light-blue);
+  background-color: var(--accent-color);
+  color: var(--background-primary);
 }

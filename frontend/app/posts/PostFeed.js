@@ -3,6 +3,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from '../styles/posts.module.css';
 import { CommentSection } from './CommentSection';
+import { getAvatarUrl, hasAvatar } from '../utils/avatarUtils';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 export function formatDate(dateString) {
         const fixedDateStr = dateString.replace(' at ', ' ');
@@ -33,10 +35,10 @@ export function formatDate(dateString) {
         return `${years}y`;
     };
 
-export function PostFeed({ groupId, initialPosts }) {
+export function PostFeed({ groupId }) {
     const router = useRouter();
-    const [posts, setPosts] = useState(initialPosts || []);
-    const [isLoading, setIsLoading] = useState(!initialPosts);
+    const [posts, setPosts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showComments, setShowComments] = useState({});
     const [offset, setOffset] = useState(0);
@@ -119,7 +121,7 @@ export function PostFeed({ groupId, initialPosts }) {
 
     // Infinite scroll handler
     const handleScroll = useCallback(() => {
-        if (isLoadingRef.current || !hasMore || initialPosts) return; // Do not fetch more if posts are passed as a prop
+        if (isLoadingRef.current || !hasMore) return;
 
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         const windowHeight = window.innerHeight;
@@ -132,10 +134,8 @@ export function PostFeed({ groupId, initialPosts }) {
     }, [hasMore, fetchPosts]);
 
     useEffect(() => {
-        if (!initialPosts) {
-            fetchPosts();
-        }
-    }, [router, initialPosts]);
+        fetchPosts();
+    }, [router]);
 
     useEffect(() => {
         window.addEventListener('scroll', handleScroll);
@@ -259,14 +259,20 @@ export function PostFeed({ groupId, initialPosts }) {
                 <article key={`${post.Pid}-${index}`} className={styles.post}>
                     <div className={styles.postHeader}>
                         <div className={styles.authorAvatar}>
-                            <img
-                                src={post.Avatar ? `http://localhost:8080/${post.Avatar}` : '/default-avatar.jpg'}
-                                alt={post.Username}
-                                className={styles.authorAvatar}
-                                onError={(e) => {
-                                    console.log('Avatar image failed to load:', post.Avatar);
-                                }}
-                            />
+                            {hasAvatar(post.Avatar) ? (
+                                <img
+                                    src={getAvatarUrl(post.Avatar)}
+                                    alt={post.Username}
+                                    onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        // Show default avatar when image fails to load
+                                        e.target.nextSibling.style.display = 'flex';
+                                    }}
+                                />
+                            ) : null}
+                            <div className={styles.defaultAvatar} style={{ display: hasAvatar(post.Avatar) ? 'none' : 'flex' }}>
+                                <i className="fa-solid fa-user" style={{color: '#9b4ef3ff'}}></i>
+                            </div>
                         </div>
                         <div className={styles.authorInfo}>
                             <h3 className={styles.authorName}>{post.Username || 'Anonymous'}</h3>
@@ -303,7 +309,7 @@ export function PostFeed({ groupId, initialPosts }) {
                             aria-label="Like"
                         >
                             <span className={styles.actionIcon}>
-                                👍
+                                <i className="fa-solid fa-thumbs-up" ></i>
                             </span>
                             <span className={styles.actionText}>
                                 {post.Likes || 0}
@@ -315,7 +321,9 @@ export function PostFeed({ groupId, initialPosts }) {
                             onClick={() => handleDislike(post.Pid)}
                             aria-label="Dislike"
                         >
-                            <span className={styles.actionIcon}>👎</span>
+                            <span className={styles.actionIcon}>
+                                <i className="fa-solid fa-thumbs-down"></i>
+                            </span>
                             <span className={styles.actionText}>
                                 {post.Dislikes || 0}
                             </span>
@@ -326,7 +334,9 @@ export function PostFeed({ groupId, initialPosts }) {
                             onClick={() => toggleComments(post.Pid)}
                             aria-label="Comment"
                         >
-                            <span className={styles.actionIcon}>💬</span>
+                            <span className={styles.actionIcon}>
+                                <i className="fa-solid fa-comment"></i>
+                            </span>
                             <span className={styles.actionText}>
                                 {post.NbComment || 0}
                             </span>

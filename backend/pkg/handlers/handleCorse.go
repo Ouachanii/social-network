@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 )
 
 func HandleCORS(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("CORS handler called for:", r.URL.Path, "method:", r.Method)
+
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -15,8 +18,31 @@ func HandleCORS(next http.HandlerFunc) http.HandlerFunc {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		next.ServeHTTP(w, r)
+
+		// Wrap the ResponseWriter to ensure content type is set
+		wrappedWriter := &responseWriter{ResponseWriter: w}
+		next.ServeHTTP(wrappedWriter, r)
 	})
+}
+
+type responseWriter struct {
+	http.ResponseWriter
+	wroteHeader bool
+}
+
+func (w *responseWriter) WriteHeader(code int) {
+	if !w.wroteHeader {
+		w.Header().Set("Content-Type", "application/json")
+		w.wroteHeader = true
+	}
+	w.ResponseWriter.WriteHeader(code)
+}
+
+func (w *responseWriter) Write(b []byte) (int, error) {
+	if !w.wroteHeader {
+		w.WriteHeader(http.StatusOK)
+	}
+	return w.ResponseWriter.Write(b)
 }
 
 func HandleCORSHandler(next http.Handler) http.Handler {

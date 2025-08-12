@@ -2,48 +2,47 @@ package tools
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"regexp"
-	"social-network/pkg/models"
-
 	"strings"
 	"time"
+
+	"social-network/pkg/models"
 )
 
 func ValidateRegisterForum(firstName, lastName, email, password, date, nickName, gender string) (int, error) {
-	if firstName == "" || lastName == "" || email == "" || password == "" || date == "" || nickName == "" {
+	if firstName == "" || lastName == "" || email == "" || password == "" || date == "" {
 		return http.StatusBadRequest, errors.New("please fill all required fileds")
 	}
 	if !IsValidName(firstName) || !IsValidName(lastName) {
-		fmt.Println("firstName: ", firstName)
-		fmt.Println("lastName: ", lastName)
 		return http.StatusBadRequest, errors.New("firstname and Lastname must contain only letters and be at most 10 characters long")
 	}
 
 	statusCode, err := CheckIsValidEmail(email)
-	fmt.Println("email: ", email)
+	// fmt.Println("email: ", email)
 	if err != nil {
 		return statusCode, err
 	}
 
 	if !IsValidPassword(password) {
-		fmt.Println("password :", password)
+		// fmt.Println("password :", password)
 		return http.StatusBadRequest, errors.New("password must be at least 8 characters and include at least one uppercase letter, one lowercase letter, and one number")
 	}
 
 	if !IsValidDateOfBirth(date) {
-		fmt.Println("date :", date)
+		// fmt.Println("date :", date)
 		return http.StatusBadRequest, errors.New("you must be at least 5 years old")
 	}
 
 	if !IsvalidGender(gender) {
-		fmt.Println("gender :", gender)
+		// fmt.Println("gender :", gender)
 		return http.StatusBadRequest, errors.New("invalid gender")
 	}
 
-	statusCode, err = CheckIsValidNickName(nickName)
-	fmt.Println("nickName :", nickName)
+	if nickName != "" {
+		statusCode, err = CheckIsValidNickName(nickName)
+	}
+
 	if err != nil {
 		return statusCode, err
 	}
@@ -93,7 +92,7 @@ func IsValidDateOfBirth(dateStr string) bool {
 
 func CheckIsValidNickName(nickName string) (int, error) {
 	isValid, _ := regexp.MatchString(`^[a-zA-Z][a-zA-Z0-9_]{2,19}$`, nickName)
-	if !isValid {
+	if !isValid && strings.TrimSpace(nickName) != "" {
 		return http.StatusBadRequest, errors.New("your nickName must: Be 3 to 20 characters long, Start with a letter, Contain only letters, numbers, underscores (_),Not end with an underscore")
 	}
 
@@ -108,7 +107,7 @@ func CheckIsValidNickName(nickName string) (int, error) {
 // Validate first and last name format
 func IsValidName(name string) bool {
 	nameRegex := regexp.MustCompile(`^[a-zA-Z]{1,10}$`)
-	fmt.Println(name, nameRegex.MatchString(name))
+	// fmt.Println(name, nameRegex.MatchString(name))
 	return nameRegex.MatchString(name)
 }
 
@@ -125,6 +124,7 @@ func IsValidAvatarExtension(ext string) bool {
 		".jpg":  true,
 		".jpeg": true,
 		".png":  true,
+		".gif":  true,
 	}
 	return allowed[strings.ToLower(ext)]
 }

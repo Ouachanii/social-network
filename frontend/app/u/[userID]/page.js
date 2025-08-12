@@ -6,6 +6,7 @@ import styles from "../../styles/profile.module.css";
 import { PostFeed } from "../../posts/PostFeed";
 import { CreatePost } from "../../posts/create_post";
 import { ProfileSidebar } from "../../components/ProfileSidebar";
+import { getAvatarUrl, hasAvatar } from "../../utils/avatarUtils";
 
 export default function UserProfilePage({ params }) {
   const router = useRouter();
@@ -169,9 +170,12 @@ export default function UserProfilePage({ params }) {
         <div className={styles.profileHeader}>
             <div className={styles.avatarContainer} onClick={handleAvatarClick}>
               <img 
-                  src={user.avatar ? `http://localhost:8080/${user.avatar}` : '/default-avatar.jpg'} 
+                  src={hasAvatar(user.avatar) ? getAvatarUrl(user.avatar) : '/default-avatar.jpg'} 
                   alt="Profile" 
                   className={styles.avatar}
+                  onError={(e) => {
+                    e.target.src = '/default-avatar.jpg';
+                  }}
               />
               {user.is_owner && (
                 <input
@@ -198,7 +202,7 @@ export default function UserProfilePage({ params }) {
       </div>
       <div className={styles.profileLayout}>
         <div className={styles.mainContent}>
-          {user.is_owner && <CreatePost onPostCreated={fetchProfile} avatarUrl={user.avatar ? `http://localhost:8080/${user.avatar}` : '/default-avatar.jpg'} />}
+          {user.is_owner && <CreatePost onPostCreated={fetchProfile} avatarUrl={hasAvatar(user.avatar) ? getAvatarUrl(user.avatar) : '/default-avatar.jpg'} />}
           <PostFeed initialPosts={posts} />
         </div>
         <ProfileSidebar user={user} onAboutMeUpdate={fetchProfile} />

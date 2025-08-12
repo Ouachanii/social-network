@@ -12,5 +12,4 @@ CREATE TABLE IF NOT EXISTS users (
     about_me TEXT,
     is_public BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (nickName)
 );

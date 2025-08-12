@@ -368,3 +368,65 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
+
+// GetUserPostsHandler returns posts for a specific user
+func GetUserPostsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract user ID from URL path
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 5 {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid user ID"})
+		return
+	}
+
+	userIDStr := pathParts[len(pathParts)-1]
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid user ID"})
+		return
+	}
+
+	currentUserID, ok := r.Context().Value("userID").(int)
+	if !ok || currentUserID == 0 {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	// Check if the target user's profile is private
+	user, err := models.Db.GetUserInfo(userID)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]string{"error": "user not found"})
+		return
+	}
+
+	if !user.IsPublic {
+		isFollowing, err := models.Db.GetFollowStatus(currentUserID, userID)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{"error": "failed to check follow status"})
+			return
+		}
+		if isFollowing != "approved" && currentUserID != userID {
+			w.WriteHeader(http.StatusForbidden)
+			json.NewEncoder(w).Encode(map[string]string{"error": "profile is private"})
+			return
+		}
+	}
+
+	posts, err := models.Db.GetUserPosts(userID, currentUserID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "failed to get posts"})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(posts)
+}

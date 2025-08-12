@@ -8,18 +8,25 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    
+    if (!token || !isLoggedIn) {
+      router.replace('/login');
+      return;
+    }
+    
+    setIsAuthenticated(true);
+    fetchNotifications();
+  }, []);
 
   const fetchNotifications = async () => {
-    setIsLoading(true);
-    setError(null);
-
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        router.replace('/login');
-        return;
-      }
-
+      
       const response = await fetch("http://localhost:8080/api/notifications", {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -28,19 +35,18 @@ export default function NotificationsPage() {
         credentials: 'include'
       });
 
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('isLoggedIn');
+        router.replace('/login');
+        return;
+      }
+
       if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('isLoggedIn');
-          router.replace('/login');
-          return;
-        }
-        throw new Error('Failed to fetch notifications');
+        throw new Error(`HTTP ${response.status}`);
       }
 
       const data = await response.json();
-      console.log(`Fetched notifications: ${JSON.stringify(data.notifications)}`);
-      
       setNotifications(data.notifications || []);
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -50,17 +56,10 @@ export default function NotificationsPage() {
     }
   };
 
-  useEffect(() => {
-    fetchNotifications();
-  }, [router]);
-
   const handleNotificationClick = async (notificationId) => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) return;
-      console.log(`Marking notification ${notificationId} as read`);
-
-      // Mark notification as read
+      
       await fetch(`http://localhost:8080/api/notifications/read`, {
         method: 'POST',
         headers: {
@@ -71,7 +70,6 @@ export default function NotificationsPage() {
         body: JSON.stringify({ notification_id: notificationId }),
       });
 
-      // Update local state
       setNotifications(prev =>
         prev.map(notification =>
           notification.id === notificationId
@@ -83,6 +81,11 @@ export default function NotificationsPage() {
       console.error('Error marking notification as read:', error);
     }
   };
+
+  // Show loading only if authenticated and still loading
+  if (!isAuthenticated) {
+    return null; // Don't show anything while redirecting
+  }
 
   if (isLoading) {
     return (
@@ -101,7 +104,7 @@ export default function NotificationsPage() {
         <p className={styles.errorMessage}>{error}</p>
         <button
           className={styles.retryButton}
-          onClick={fetchNotifications}
+          onClick={() => window.location.reload()}
         >
           Try Again
         </button>
@@ -117,29 +120,23 @@ export default function NotificationsPage() {
 
       {notifications.length > 0 ? (
         <div className={styles.list}>
-          <span> { notifications.map(notification => (
-          console.log(`Notification ID: ${notification
-          }`)
-    
-          ))}</span>
           {notifications.map(notification => (
             <div
               key={notification.id}
-              className={`${styles.notificationItem} ${notification.isRead === 0 ? styles.unread : styles.read
-                }`}
+              className={`${styles.notificationItem} ${notification.isRead === 0 ? styles.unread : styles.read}`}
               onClick={() => handleNotificationClick(notification.id)}
             >
-              <span>
-
-                {/* {notification.isRead } lhjkhkjhkjhjk */}
-              </span>
               <div className={styles.avatar}>
-                {notification.senderAvatar && (
+                {notification.senderAvatar ? (
                   <img
                     src={notification.senderAvatar}
                     alt="Sender"
-                    className={styles.avatar}
+                    className={styles.avatarImage}
                   />
+                ) : (
+                  <div className={styles.defaultAvatar}>
+                    <i className="fa-solid fa-user" style={{color: '#9b4ef3'}}></i>
+                  </div>
                 )}
               </div>
               <div className={styles.content}>

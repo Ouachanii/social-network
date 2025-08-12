@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"social-network/pkg/tools"
 )
@@ -12,15 +13,18 @@ type ErrorMiddlewareResponse struct {
 
 func TokenMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("TokenMiddleware called for:", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		token := r.Header.Get("Authorization")
 		// fmt.Println(tools.SecretKey)
 		id, err := tools.CheckIsTokenValid(token)
 		if err != nil {
+			fmt.Println("Token validation failed:", err)
 			tools.ErrorJSONResponse(w, http.StatusUnauthorized, err.Error())
 			return
 		}
 
+		fmt.Println("Token validated for user ID:", id)
 		ctx := context.WithValue(r.Context(), "userID", id)
 		next(w, r.WithContext(ctx))
 	}

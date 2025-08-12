@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -25,6 +24,29 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 	followingID, err := strconv.Atoi(r.PathValue("userID"))
 	if err != nil {
 		tools.ErrorJSONResponse(w, http.StatusBadRequest, "expected user id")
+		return
+	}
+
+	// Check if user is trying to follow themselves
+	if followerID == followingID {
+		tools.ErrorJSONResponse(w, http.StatusBadRequest, "you cannot follow yourself")
+		return
+	}
+
+	// Check if already following or request pending
+	existingStatus, err := models.Db.GetFollowStatus(followerID, followingID)
+	if err != nil {
+		tools.ErrorJSONResponse(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	if existingStatus == "approved" {
+		tools.ErrorJSONResponse(w, http.StatusBadRequest, "you are already following this user")
+		return
+	}
+
+	if existingStatus == "pending" {
+		tools.ErrorJSONResponse(w, http.StatusBadRequest, "follow request already sent")
 		return
 	}
 
@@ -63,8 +85,6 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 		ReceiverId: followingID,
 	}
 
-	fmt.Println(notification)
-
 	notification, err = models.Db.InsertNotification(&notification)
 	if err != nil {
 		tools.ErrorJSONResponse(w, http.StatusInternalServerError, "internal server error")
@@ -72,5 +92,9 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	apiResponse.Noitfy = notification
+
+	// Note: WebSocket notification will be handled by the client
+	// when they fetch notifications or through polling
+
 	tools.JSONResponse(w, http.StatusOK, apiResponse)
 }

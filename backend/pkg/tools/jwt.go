@@ -1,17 +1,20 @@
 package tools
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
 
+	"social-network/pkg/models"
+
 	"github.com/golang-jwt/jwt"
 )
 
-func CenerateJWTToken(userId int, userName string) (string, error) {
+func GenerateJWTToken(userId int, userEmail string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":        userId,
-		"user-name": userName,
+		"user-name": userEmail,
 		"exp":       time.Now().Add(200 * 365 * 24 * time.Hour).Unix(),
 	})
 
@@ -40,7 +43,6 @@ func CheckIsTokenValid(tokenString string) (int, error) {
 		}
 		return SecretKey, nil
 	})
-
 	if err != nil {
 		fmt.Println(err)
 		return 0, errors.New("unauthorized")
@@ -54,4 +56,41 @@ func CheckIsTokenValid(tokenString string) (int, error) {
 	}
 
 	return 0, errors.New("unauthorized: invalid token")
+}
+
+func ValidateToken(tokenString string) (*models.User, bool, error) {
+	if tokenString == "" {
+		return nil, false, errors.New("empty token")
+	}
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return SecretKey, nil
+	})
+	if err != nil {
+		return nil, false, err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		userID, ok := claims["id"].(float64)
+		if !ok {
+			return nil, false, errors.New("invalid user ID in token")
+		}
+
+		userName, ok := claims["user-name"].(string)
+		if !ok {
+			return nil, false, errors.New("invalid username in token")
+		}
+
+		user := &models.User{
+			ID:       int(userID),
+			Nickname: sql.NullString{String: userName, Valid: true},
+		}
+
+		return user, true, nil
+	}
+
+	return nil, false, errors.New("invalid token")
 }

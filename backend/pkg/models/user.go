@@ -10,17 +10,17 @@ import (
 )
 
 type User struct {
-	ID          int
-	Nickname    string
-	Firstname   string
-	Lastname    string
-	Email       string
-	Password    string
-	DateOfBirth string
-	Gender      string
-	AboutMe     string
-	Avatar      *string
-	IsPublic    bool
+	ID          int            `json:"id"`
+	Nickname    sql.NullString `json:"nickname"`
+	Firstname   string         `json:"firstname"`
+	Lastname    string         `json:"lastname"`
+	Email       string         `json:"email"`
+	Password    string         `json:"password"`
+	DateOfBirth string         `json:"date_of_birth"`
+	Gender      string         `json:"gender"`
+	AboutMe     string         `json:"about_me"`
+	Avatar      *string        `json:"avatar"`
+	IsPublic    bool           `json:"is_public"`
 }
 
 // Insert a new user into the database
@@ -29,15 +29,19 @@ func (db *DB) Insert(u User) (int, error) {
 	if err != nil {
 		return 0, errors.New("failed to hash password")
 	}
-
 	var id int
+	var nickname interface{}
+	if u.Nickname.String == "" {
+		nickname = nil // for skip "UNIQUE constraint failed: users.nickname" error
+	} else {
+		nickname = u.Nickname
+	}
 	err = db.Db.QueryRow(`
 		INSERT INTO users 
 		(nickname, date_of_birth, about_me, first_name, last_name, email, gender, password_hash, avatar) 
 		VALUES (?,?,?,?,?,?,?,?,?) RETURNING id`,
-		u.Nickname, u.DateOfBirth, u.AboutMe, u.Firstname, u.Lastname, u.Email, u.Gender, hashedPass, u.Avatar,
+		nickname, u.DateOfBirth, u.AboutMe, u.Firstname, u.Lastname, u.Email, u.Gender, hashedPass, u.Avatar,
 	).Scan(&id)
-
 	if err != nil {
 		return 0, err
 	}
@@ -46,9 +50,8 @@ func (db *DB) Insert(u User) (int, error) {
 
 func (db *DB) GetUserByLogin(email string) (*User, error) {
 	user := &User{}
-	err := db.Db.QueryRow(`SELECT id, password_hash,nickname FROM users WHERE email = ? OR nickName = ?`, email, email).
-		Scan(&user.ID, &user.Password, &user.Nickname)
-
+	err := db.Db.QueryRow(`SELECT id, email, password_hash, first_name, last_name, date_of_birth, avatar, nickname, about_me, is_public FROM users WHERE email = ? OR nickName = ?`, email, email).
+		Scan(&user.ID, &user.Email, &user.Password, &user.Firstname, &user.Lastname, &user.DateOfBirth, &user.Avatar, &user.Nickname, &user.AboutMe, &user.IsPublic)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.New("user not found")
@@ -56,23 +59,9 @@ func (db *DB) GetUserByLogin(email string) (*User, error) {
 		fmt.Println(err)
 		return nil, errors.New("internal server error")
 	}
-
-	return user, nil
-}
-
-func (db *DB) GetUserByID(userID int) (*User, error) {
-	user := &User{}
-	err := db.Db.QueryRow(`
-		SELECT id, nickname, first_name, last_name, email, date_of_birth, about_me, avatar, is_public 
-		FROM users WHERE id = ?`, userID).
-		Scan(&user.ID, &user.Nickname, &user.Firstname, &user.Lastname, &user.Email, &user.DateOfBirth, &user.AboutMe, &user.Avatar, &user.IsPublic)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, errors.New("user not found")
-		}
-		fmt.Println(err)
-		return nil, errors.New("internal server error")
+	// Convert NULL nickname to empty string
+	if !user.Nickname.Valid {
+		user.Nickname.String = ""
 	}
 
 	return user, nil
@@ -91,6 +80,9 @@ func (db *DB) CheckIsExistEmailInDB(email string) (int, error) {
 }
 
 func (db *DB) CheckIsExistNickNameInDB(nickName string) (int, error) {
+	if nickName == "" {
+		return 0, nil
+	}
 	var exists int
 	err := db.Db.QueryRow("SELECT 1 FROM users WHERE nickName = ? LIMIT 1", nickName).Scan(&exists)
 	if err == sql.ErrNoRows {
@@ -153,6 +145,17 @@ func (db *DB) UpdatePrivacy(userID int) error {
 
 	return nil
 }
+
+func (db *DB) GetUserByID(id int) (*User, error) {
+	var user User
+	err := Db.Db.QueryRow("SELECT id, email, password_hash, first_name, last_name, date_of_birth, avatar, nickname, about_me, is_public FROM users WHERE id = ?", id).Scan(&user.ID, &user.Email, &user.Password, &user.Firstname, &user.Lastname, &user.DateOfBirth, &user.Avatar, &user.Nickname, &user.AboutMe, &user.IsPublic)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+
 
 // UpdateAvatar updates the user's avatar path in the database
 func (db *DB) UpdateAvatar(userID int, avatarPath string) error {
